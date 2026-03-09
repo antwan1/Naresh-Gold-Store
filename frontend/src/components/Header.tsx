@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
+import { FaShoppingCart, FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 const NAV_LINKS = [
   { label: 'Home', to: '/', key: 'home' },
@@ -13,6 +15,8 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { itemCount } = useCart();
 
   useEffect(() => {
     function handleScroll() {
@@ -101,9 +105,66 @@ export default function Header() {
                     fontFamily: 'var(--font-body)',
                   }}
                 >
-                  0
+                  {itemCount > 99 ? '99+' : itemCount}
                 </span>
               </Link>
+
+              {/* Account icon / login link */}
+              {isAuthenticated ? (
+                <div className="hidden md:flex items-center gap-2 relative group">
+                  <button
+                    className="flex items-center gap-1.5 text-white hover:text-[#C9A84C] transition-colors duration-200 focus:outline-none"
+                    aria-label="Account menu"
+                  >
+                    {user?.first_name ? (
+                      <span
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold uppercase"
+                        style={{ backgroundColor: '#C9A84C', color: '#0F1328' }}
+                      >
+                        {user.first_name[0]}
+                      </span>
+                    ) : (
+                      <FaUserCircle size={20} />
+                    )}
+                  </button>
+                  {/* Dropdown */}
+                  <div
+                    className="absolute right-0 top-8 w-40 rounded shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
+                    style={{ backgroundColor: '#1A1F3A', border: '1px solid #C9A84C33' }}
+                  >
+                    <Link
+                      to="/account"
+                      className="block px-4 py-2 text-sm text-white hover:text-[#C9A84C] no-underline"
+                      style={{ fontFamily: 'var(--font-body)' }}
+                    >
+                      My Account
+                    </Link>
+                    <Link
+                      to="/account"
+                      className="block px-4 py-2 text-sm text-white hover:text-[#C9A84C] no-underline"
+                      style={{ fontFamily: 'var(--font-body)' }}
+                    >
+                      Orders
+                    </Link>
+                    <button
+                      onClick={logout}
+                      className="block w-full text-left px-4 py-2 text-sm text-white hover:text-[#C9A84C] transition-colors"
+                      style={{ fontFamily: 'var(--font-body)' }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="hidden md:flex items-center gap-1.5 text-sm font-semibold text-white hover:text-[#C9A84C] transition-colors duration-200 no-underline"
+                  style={{ fontFamily: 'var(--font-body)' }}
+                >
+                  <FaUserCircle size={18} />
+                  <span>Sign In</span>
+                </Link>
+              )}
 
               {/* Mobile hamburger */}
               <button

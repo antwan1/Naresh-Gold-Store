@@ -21,6 +21,8 @@ INSTALLED_APPS = [
     'django_filters',
     # Local
     'products',
+    'customers',
+    'orders',
     'core',
 ]
 
@@ -105,6 +107,12 @@ CORS_ALLOWED_ORIGINS = config(
     default='http://localhost:5173,http://127.0.0.1:5173',
 ).split(',')
 CORS_ALLOW_CREDENTIALS = True
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+}
 
 # Jazzmin admin theme
 JAZZMIN_SETTINGS = {

@@ -1,0 +1,64 @@
+from rest_framework import serializers
+from products.serializers import ProductListSerializer
+from .models import Cart, CartItem, Order, OrderItem
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product = ProductListSerializer(read_only=True)
+    product_id = serializers.IntegerField(write_only=True)
+    line_total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CartItem
+        fields = ['id', 'product', 'product_id', 'quantity', 'line_total']
+
+    def get_line_total(self, obj):
+        return str(obj.line_total) if obj.line_total else None
+
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+    total = serializers.SerializerMethodField()
+    item_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'items', 'total', 'item_count']
+
+    def get_total(self, obj):
+        return str(obj.total)
+
+    def get_item_count(self, obj):
+        return sum(item.quantity for item in obj.items.all())
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    product_slug = serializers.CharField(source='product.slug', read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product_name', 'product_slug', 'quantity', 'unit_price', 'total_price']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            'id', 'status', 'total_amount', 'payment_method',
+            'shipping_address_line1', 'shipping_address_line2',
+            'shipping_city', 'shipping_postcode', 'notes',
+            'items', 'created_at',
+        ]
+        read_only_fields = ['id', 'status', 'total_amount', 'items', 'created_at']
+
+
+class PlaceOrderSerializer(serializers.Serializer):
+    shipping_address_line1 = serializers.CharField()
+    shipping_address_line2 = serializers.CharField(required=False, allow_blank=True)
+    shipping_city = serializers.CharField()
+    shipping_postcode = serializers.CharField()
+    payment_method = serializers.ChoiceField(choices=['stripe', 'paypal', 'cash'])
+    notes = serializers.CharField(required=False, allow_blank=True)

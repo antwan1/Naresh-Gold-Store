@@ -4,6 +4,14 @@ import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import ShopPage from './pages/ShopPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import CartPage from './pages/CartPage';
+import CheckoutPage from './pages/CheckoutPage';
+import OrderConfirmationPage from './pages/OrderConfirmationPage';
+import AccountPage from './pages/AccountPage';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 
 /* WhatsApp floating button */
 function WhatsAppButton() {
@@ -44,20 +52,32 @@ function WhatsAppButton() {
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <div className="flex-1">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/products/:slug" element={<ProductDetailPage />} />
-            {/* Catch-all: redirect to home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-        <Footer />
-        <WhatsAppButton />
-      </div>
+      <AuthProvider>
+        <CartProvider>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <div className="flex-1">
+              <Routes>
+                {/* Phase 1 */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/products/:slug" element={<ProductDetailPage />} />
+                {/* Phase 2 */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
+                <Route path="/account" element={<AccountPage />} />
+                {/* Catch-all */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </div>
+            <Footer />
+            <WhatsAppButton />
+          </div>
+        </CartProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

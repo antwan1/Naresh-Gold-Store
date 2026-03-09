@@ -41,3 +41,54 @@ export interface PaginatedResponse<T> {
   previous: string | null;
   results: T[];
 }
+
+export interface CartItem {
+  id: number;
+  product: Product;
+  quantity: number;
+  line_total: string | null;
+}
+
+export interface Cart {
+  id: number;
+  items: CartItem[];
+  total: string;
+  item_count: number;
+}
+
+export interface OrderItem {
+  id: number;
+  product_name: string;
+  product_slug: string;
+  quantity: number;
+  unit_price: string;
+  total_price: string;
+}
+
+export interface Order {
+  id: number;
+  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+  total_amount: string;
+  payment_method: string;
+  shipping_address_line1: string;
+  shipping_address_line2: string;
+  shipping_city: string;
+  shipping_postcode: string;
+  notes: string;
+  items: OrderItem[];
+  created_at: string;
+}
+
+export interface AuthUser {
+  email: string;
+  first_name: string;
+  last_name: string;
+}
+
+export interface CustomerProfile extends AuthUser {
+  phone?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  postcode?: string;
+}
