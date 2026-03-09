@@ -1,0 +1,21 @@
+{
+  "name": "naresh-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "npx playwright test",
+    "test:api": "cross-env PLAYWRIGHT_PROJECT=api npx playwright test --project=api",
+    "test:ui": "npx playwright test --project=chromium"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
+    "@playwright/test": "^1.58.2"
+  },
+  "dependencies": {
+    "cross-env": "^10.1.0"
+  }
+}
