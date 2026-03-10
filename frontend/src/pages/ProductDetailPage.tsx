@@ -13,6 +13,8 @@ import {
 import ProductCard from '../components/ProductCard';
 import { getProduct, getProducts } from '../services/api';
 import type { Product, ProductImage } from '../types';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const METAL_LABELS: Record<Product['metal_type'], string> = {
   gold: 'Gold',
@@ -48,6 +50,8 @@ function SpecRow({ label, value }: { label: string; value: string }) {
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -59,6 +63,7 @@ export default function ProductDetailPage() {
   const [wishlisted, setWishlisted] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [cartError, setCartError] = useState('');
 
   useEffect(() => {
     if (!slug) return;
@@ -86,9 +91,20 @@ export default function ProductDetailPage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  function handleAddToCart() {
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+  async function handleAddToCart() {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/products/' + slug } });
+      return;
+    }
+    if (!product) return;
+    setCartError('');
+    try {
+      await addToCart(product.id, quantity);
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+    } catch {
+      setCartError('Failed to add to cart. Please try again.');
+    }
   }
 
   function handleSendEnquiry() {
@@ -432,9 +448,12 @@ export default function ProductDetailPage() {
                   {addedToCart ? 'Added!' : 'Add to Cart'}
                 </button>
               </div>
+              {cartError && (
+                <p className="text-xs mt-1" style={{ color: '#DC2626', fontFamily: 'var(--font-body)' }}>{cartError}</p>
+              )}
             )}
 
-            {/* Send Enquiry button */}
+            {/* Send Enquiry button */}}
             <button
               data-testid="send-enquiry-btn"
               onClick={handleSendEnquiry}
