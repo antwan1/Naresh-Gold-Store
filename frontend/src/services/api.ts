@@ -137,4 +137,31 @@ export async function getOrder(id: number): Promise<Order> {
   return response.data;
 }
 
+// ── Enquiries ─────────────────────────────────────────────────────────────────
+
+export async function submitEnquiry(data: {
+  name: string;
+  email: string;
+  phone?: string;
+  message: string;
+  product?: number;
+}): Promise<{ id: number }> {
+  const response = await client.post<{ id: number }>('/enquiries/', data);
+  return response.data;
+}
+
+// ── Appointments ──────────────────────────────────────────────────────────────
+
+export async function bookAppointment(data: {
+  name: string;
+  email: string;
+  phone: string;
+  date: string;
+  time_slot: string;
+  purpose: string;
+}): Promise<{ id: number }> {
+  const response = await client.post<{ id: number }>('/appointments/', data);
+  return response.data;
+}
+
 export default client;

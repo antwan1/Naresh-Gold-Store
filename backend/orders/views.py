@@ -68,6 +68,7 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                    mixins.CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None  # each user has few orders, no need to paginate
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).prefetch_related('items__product')

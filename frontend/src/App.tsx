@@ -10,6 +10,8 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import AccountPage from './pages/AccountPage';
+import ContactPage from './pages/ContactPage';
+import AppointmentPage from './pages/AppointmentPage';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
@@ -69,6 +71,9 @@ export default function App() {
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
                 <Route path="/account" element={<AccountPage />} />
+                {/* Phase 3 */}
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/appointments" element={<AppointmentPage />} />
                 {/* Catch-all */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

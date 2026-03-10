@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { label: 'Shop', to: '/shop', key: 'shop' },
   { label: 'About', to: '/about', key: 'about' },
   { label: 'Contact', to: '/contact', key: 'contact' },
+  { label: 'Appointments', to: '/appointments', key: 'appointments' },
 ];
 
 export default function Header() {
