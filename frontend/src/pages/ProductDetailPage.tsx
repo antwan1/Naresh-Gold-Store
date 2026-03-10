@@ -448,12 +448,12 @@ export default function ProductDetailPage() {
                   {addedToCart ? 'Added!' : 'Add to Cart'}
                 </button>
               </div>
-              {cartError && (
-                <p className="text-xs mt-1" style={{ color: '#DC2626', fontFamily: 'var(--font-body)' }}>{cartError}</p>
-              )}
+            )}
+            {cartError && (
+              <p className="text-xs mt-1" style={{ color: '#DC2626', fontFamily: 'var(--font-body)' }}>{cartError}</p>
             )}
 
-            {/* Send Enquiry button */}}
+            {/* Send Enquiry button */}
             <button
               data-testid="send-enquiry-btn"
               onClick={handleSendEnquiry}
