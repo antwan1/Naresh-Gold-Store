@@ -44,4 +44,6 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(ProductListSerializer):
     class Meta(ProductListSerializer.Meta):
-        fields = ProductListSerializer.Meta.fields + ['description', 'updated_at']
+        fields = ProductListSerializer.Meta.fields + [
+            'description', 'name_hi', 'name_pa', 'description_hi', 'description_pa', 'updated_at',
+        ]

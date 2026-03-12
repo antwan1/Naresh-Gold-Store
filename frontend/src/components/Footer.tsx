@@ -8,6 +8,8 @@ const QUICK_LINKS = [
   { label: 'About Us', to: '/about' },
   { label: 'Contact', to: '/contact' },
   { label: 'Book Appointment', to: '/appointments' },
+  { label: 'Sell Your Gold', to: '/sell-gold' },
+  { label: 'Bespoke Jewellery', to: '/custom-jewellery' },
 ];
 
 const SOCIAL_LINKS = [
@@ -105,18 +107,18 @@ export default function Footer() {
                 />
                 <span className="text-sm leading-relaxed" style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}>
                   123 Jewellers Row<br />
-                  Birmingham, B1 1AA<br />
+                  Birmingham, B18 6NF<br />
                   United Kingdom
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <FaPhone size={13} style={{ color: '#C9A84C' }} />
                 <a
-                  href="tel:+441234567890"
+                  href="tel:+441217001234"
                   className="text-sm no-underline hover:text-[#C9A84C] transition-colors duration-200"
                   style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}
                 >
-                  +44 (0) 123 456 7890
+                  +44 121 700 1234
                 </a>
               </li>
               <li className="flex items-center gap-3">

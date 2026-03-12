@@ -48,6 +48,7 @@ class Order(models.Model):
         ('stripe', 'Stripe'),
         ('paypal', 'PayPal'),
         ('cash', 'Cash on Collection'),
+        ('bank_transfer', 'Bank Transfer'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='orders')

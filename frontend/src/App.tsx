@@ -1,4 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -11,7 +18,12 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import AccountPage from './pages/AccountPage';
 import ContactPage from './pages/ContactPage';
+import AboutPage from './pages/AboutPage';
 import AppointmentPage from './pages/AppointmentPage';
+import SellGoldPage from './pages/SellGoldPage';
+import CustomJewelleryPage from './pages/CustomJewelleryPage';
+import GoldTicker from './components/GoldTicker';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
@@ -53,11 +65,17 @@ function WhatsAppButton() {
 
 export default function App() {
   return (
+    <HelmetProvider>
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
           <div className="flex flex-col min-h-screen">
-            <Header />
+            {/* Fixed top bar: ticker + header */}
+            <div className="fixed top-0 left-0 right-0 z-50 flex flex-col">
+              <GoldTicker />
+              <Header />
+            </div>
+            <ScrollToTop />
             <div className="flex-1">
               <Routes>
                 {/* Phase 1 */}
@@ -72,8 +90,11 @@ export default function App() {
                 <Route path="/order-confirmation/:id" element={<OrderConfirmationPage />} />
                 <Route path="/account" element={<AccountPage />} />
                 {/* Phase 3 */}
+                <Route path='/about' element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/appointments" element={<AppointmentPage />} />
+                <Route path="/sell-gold" element={<SellGoldPage />} />
+                <Route path="/custom-jewellery" element={<CustomJewelleryPage />} />
                 {/* Catch-all */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
@@ -84,5 +105,6 @@ export default function App() {
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>
+    </HelmetProvider>
   );
 }

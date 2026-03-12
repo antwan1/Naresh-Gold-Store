@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useParams } from 'react-router-dom';
 import { getOrder } from '../services/api';
 import type { Order } from '../types';
@@ -41,13 +42,22 @@ export default function OrderConfirmationPage() {
 
   if (isLoading) {
     return (
+                  <>
+<Helmet>
+              <title>Order Confirmed — Naresh Jewellers</title>
+              <meta name="description" content="Your order has been placed successfully." />
+              <meta property="og:title" content="Order Confirmed — Naresh Jewellers" />
+              <meta property="og:description" content="Your order has been placed successfully." />
+              <meta property="og:type" content="website" />
+              <meta property="og:site_name" content="Naresh Jewellers" />
+            </Helmet>
       <main className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FAF9F6' }}>
         <div
           className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin"
           style={{ borderColor: '#C9A84C', borderTopColor: 'transparent' }}
         />
       </main>
-    );
+    </>);
   }
 
   return (

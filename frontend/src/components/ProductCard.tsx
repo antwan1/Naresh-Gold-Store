@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
+import { checkWishlisted, toggleWishlist } from '../services/api';
 import type { Product } from '../types';
 
 interface ProductCardProps {
@@ -16,7 +18,15 @@ const METAL_LABELS: Record<Product['metal_type'], string> = {
 };
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { isAuthenticated } = useAuth();
   const [wishlisted, setWishlisted] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    checkWishlisted(product.id)
+      .then((r) => setWishlisted(r.wishlisted))
+      .catch(() => {});
+  }, [isAuthenticated, product.id]);
   const [imageHovered, setImageHovered] = useState(false);
 
   const imageUrl = product.primary_image
@@ -80,7 +90,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            if (!isAuthenticated) return;
             setWishlisted((prev) => !prev);
+            toggleWishlist(product.id).catch(() => setWishlisted((prev) => !prev));
           }}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >

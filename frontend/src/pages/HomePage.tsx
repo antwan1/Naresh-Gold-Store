@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { FaStar, FaMapMarkerAlt, FaClock, FaCalendarAlt, FaDirections } from 'react-icons/fa';
 import HeroSection from '../components/HeroSection';
@@ -32,12 +33,21 @@ const TESTIMONIALS = [
 /* ─── Gold Divider ─────────────────────────────────────────────────────── */
 function GoldDivider({ className = '' }: { className?: string }) {
   return (
+                <>
+<Helmet>
+              <title>Naresh Jewellers — Handcrafted Gold & Diamond Jewellery</title>
+              <meta name="description" content="Exquisite handcrafted gold, silver and diamond jewellery from Naresh Jewellers, Birmingham. Shop our collection or book a private viewing." />
+              <meta property="og:title" content="Naresh Jewellers — Handcrafted Gold & Diamond Jewellery" />
+              <meta property="og:description" content="Exquisite handcrafted gold, silver and diamond jewellery from Naresh Jewellers, Birmingham. Shop our collection or book a private viewing." />
+              <meta property="og:type" content="website" />
+              <meta property="og:site_name" content="Naresh Jewellers" />
+            </Helmet>
     <div className={`flex items-center justify-center gap-3 ${className}`}>
       <div className="w-12 h-px" style={{ backgroundColor: '#C9A84C', opacity: 0.5 }} />
       <span style={{ color: '#C9A84C', fontSize: '10px', opacity: 0.7 }}>♦</span>
       <div className="w-12 h-px" style={{ backgroundColor: '#C9A84C', opacity: 0.5 }} />
     </div>
-  );
+    </>);
 }
 
 /* ─── Section Heading ──────────────────────────────────────────────────── */
@@ -450,7 +460,7 @@ export default function HomePage() {
                   className="text-sm leading-relaxed text-left"
                   style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'var(--font-body)' }}
                 >
-                  123 Jewellers Row<br />Birmingham, B1 1AA
+                  123 Jewellers Row<br />Birmingham, B18 6NF
                 </p>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -36,8 +37,17 @@ export default function LoginPage() {
   }
 
   return (
+                <>
+<Helmet>
+              <title>Sign In — Naresh Jewellers</title>
+              <meta name="description" content="Sign in to your Naresh Jewellers account." />
+              <meta property="og:title" content="Sign In — Naresh Jewellers" />
+              <meta property="og:description" content="Sign in to your Naresh Jewellers account." />
+              <meta property="og:type" content="website" />
+              <meta property="og:site_name" content="Naresh Jewellers" />
+            </Helmet>
     <main
-      className="min-h-screen flex items-center justify-center px-4 py-20"
+      className="min-h-screen flex items-center justify-center px-4 py-28"
       style={{ backgroundColor: '#1A1F3A' }}
     >
       <div
@@ -187,5 +197,5 @@ export default function LoginPage() {
         </p>
       </div>
     </main>
-  );
+    </>);
 }

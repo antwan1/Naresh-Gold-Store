@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import type { CartItem } from '../types';
@@ -13,6 +14,15 @@ function QuantityControl({
   onDecrease: () => void;
 }) {
   return (
+                <>
+<Helmet>
+              <title>Shopping Cart — Naresh Jewellers</title>
+              <meta name="description" content="Review your selected jewellery items and proceed to checkout." />
+              <meta property="og:title" content="Shopping Cart — Naresh Jewellers" />
+              <meta property="og:description" content="Review your selected jewellery items and proceed to checkout." />
+              <meta property="og:type" content="website" />
+              <meta property="og:site_name" content="Naresh Jewellers" />
+            </Helmet>
     <div className="flex items-center gap-1">
       <button
         data-testid="quantity-decrease"
@@ -51,7 +61,7 @@ function QuantityControl({
         +
       </button>
     </div>
-  );
+    </>);
 }
 
 function ProductImageCell({ item }: { item: CartItem }) {
@@ -195,7 +205,7 @@ export default function CartPage() {
   }
 
   return (
-    <main className="min-h-screen pt-24 pb-16 px-4" style={{ backgroundColor: '#FAF9F6' }}>
+    <main className="min-h-screen pt-32 pb-16 px-4" style={{ backgroundColor: '#FAF9F6' }}>
       <div className="max-w-6xl mx-auto">
         {/* Page title */}
         <div className="mb-8 flex items-center justify-between">

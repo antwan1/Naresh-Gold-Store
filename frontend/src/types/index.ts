@@ -92,3 +92,30 @@ export interface CustomerProfile extends AuthUser {
   city?: string;
   postcode?: string;
 }
+
+export interface Review {
+  id: number;
+  product: number;
+  customer: number;
+  customer_name: string;
+  rating: number;
+  title: string;
+  text: string;
+  is_verified_purchase: boolean;
+  is_approved: boolean;
+  admin_reply: string;
+  created_at: string;
+}
+
+export interface WishlistItem {
+  id: number;
+  product: Product;
+  created_at: string;
+}
+
+export interface GoldPrices {
+  gold_per_gram: { '24k': number; '22k': number; '18k': number };
+  silver_per_gram: number;
+  currency: string;
+  source: string;
+}

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Dark navy background circle -->
+  <circle cx="16" cy="16" r="16" fill="#1A1F3A"/>
+  <!-- Gold diamond gem shape -->
+  <!-- Top facets -->
+  <polygon points="16,5 22,12 16,11 10,12" fill="#E8D5A3"/>
+  <!-- Left top facet -->
+  <polygon points="16,5 10,12 7,12" fill="#C9A84C"/>
+  <!-- Right top facet -->
+  <polygon points="16,5 22,12 25,12" fill="#D4B96B"/>
+  <!-- Center band left -->
+  <polygon points="10,12 7,12 11,19" fill="#A07830"/>
+  <!-- Center band right -->
+  <polygon points="22,12 25,12 21,19" fill="#C9A84C"/>
+  <!-- Bottom left -->
+  <polygon points="10,12 16,11 11,19" fill="#C9A84C"/>
+  <!-- Bottom right -->
+  <polygon points="22,12 16,11 21,19" fill="#E8D5A3"/>
+  <!-- Bottom point -->
+  <polygon points="11,19 16,27 21,19" fill="#D4B96B"/>
+  <!-- Bottom left outer -->
+  <polygon points="7,12 11,19 16,27" fill="#C9A84C"/>
+  <!-- Bottom right outer -->
+  <polygon points="25,12 21,19 16,27" fill="#A07830"/>
+</svg>

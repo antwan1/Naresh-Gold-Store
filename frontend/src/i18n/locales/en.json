@@ -1,0 +1,155 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "about": "About",
+    "contact": "Contact",
+    "appointments": "Appointments",
+    "sellGold": "Sell Gold"
+  },
+  "header": {
+    "signIn": "Sign In",
+    "myAccount": "My Account",
+    "orders": "Orders",
+    "logout": "Logout",
+    "cart": "Shopping cart"
+  },
+  "hero": {
+    "tagline": "Crafted with Love, Worn with Pride",
+    "subtitle": "Exquisite gold and diamond jewellery, handcrafted for the most precious moments",
+    "shopNow": "Shop Now",
+    "bookAppointment": "Book Appointment"
+  },
+  "shop": {
+    "title": "Our Collection",
+    "subtitle": "Discover our exquisite range of handcrafted jewellery",
+    "allCategories": "All Categories",
+    "allMetals": "All Metals",
+    "sortBy": "Sort by",
+    "sortNewest": "Newest",
+    "sortPriceLow": "Price: Low to High",
+    "sortPriceHigh": "Price: High to Low",
+    "search": "Search jewellery...",
+    "filters": "Filters",
+    "noProducts": "No products found",
+    "viewDetails": "View Details",
+    "priceOnRequest": "Price on Request",
+    "loading": "Loading..."
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "added": "Added!",
+    "addToWishlist": "Add to wishlist",
+    "removeFromWishlist": "Remove from wishlist",
+    "sendEnquiry": "Send Enquiry",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "sku": "SKU",
+    "weight": "Weight",
+    "purity": "Purity",
+    "metal": "Metal",
+    "quantity": "Quantity",
+    "reviews": "Customer Reviews",
+    "writeReview": "Write a Review",
+    "submitReview": "Submit Review",
+    "noReviews": "No reviews yet. Be the first to review this piece.",
+    "reviewPending": "Review submitted — pending approval",
+    "signInToReview": "Sign in to leave a review",
+    "verified": "Verified Purchase",
+    "relatedProducts": "You May Also Like"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "subtotal": "Subtotal",
+    "checkout": "Proceed to Checkout",
+    "remove": "Remove",
+    "total": "Total"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shippingAddress": "Shipping Address",
+    "paymentMethod": "Payment Method",
+    "placeOrder": "Place Order",
+    "orderSummary": "Order Summary"
+  },
+  "account": {
+    "title": "My Account",
+    "welcomeBack": "Welcome back",
+    "orderHistory": "Order History",
+    "wishlist": "Wishlist",
+    "profile": "Profile Details",
+    "saveChanges": "Save Changes",
+    "noOrders": "You haven't placed any orders yet.",
+    "browseCollection": "Browse Collection",
+    "wishlistEmpty": "Your wishlist is empty."
+  },
+  "contact": {
+    "title": "Contact & Enquiries",
+    "subtitle": "Have a question about a piece? We would love to hear from you.",
+    "yourName": "Your Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "message": "Message",
+    "send": "Send Enquiry",
+    "sending": "Sending...",
+    "success": "Enquiry Sent!",
+    "successMessage": "Thank you for getting in touch. We will get back to you as soon as possible.",
+    "visitStore": "Visit Our Store",
+    "openingHours": "Opening Hours",
+    "bookAppointment": "Book an Appointment"
+  },
+  "appointments": {
+    "title": "Book a Visit",
+    "subtitle": "Come see our collection in person. Book a private viewing at our store.",
+    "yourName": "Your Name",
+    "phone": "Phone",
+    "email": "Email Address",
+    "preferredDate": "Preferred Date",
+    "purpose": "Purpose",
+    "preferredTime": "Preferred Time",
+    "book": "Book Appointment",
+    "booking": "Booking...",
+    "success": "Appointment Booked!",
+    "successMessage": "We look forward to seeing you. You will receive a confirmation shortly.",
+    "purposes": {
+      "consultation": "Consultation",
+      "repair": "Repair",
+      "valuation": "Valuation",
+      "general": "General Enquiry"
+    }
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "register": "Create Account",
+    "email": "Email Address",
+    "password": "Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone Number",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "signUp": "Sign up",
+    "signingIn": "Signing in...",
+    "creating": "Creating account..."
+  },
+  "footer": {
+    "tagline": "Exquisite jewellery handcrafted for life's most precious moments.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact Us",
+    "rights": "All rights reserved."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "required": "required"
+  },
+  "ticker": {
+    "livePrices": "Live prices"
+  },
+  "about": {
+    "title": "About Naresh Jewellers",
+    "subtitle": "A legacy of craftsmanship since 1972"
+  }
+}

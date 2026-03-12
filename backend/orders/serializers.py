@@ -60,5 +60,5 @@ class PlaceOrderSerializer(serializers.Serializer):
     shipping_address_line2 = serializers.CharField(required=False, allow_blank=True)
     shipping_city = serializers.CharField()
     shipping_postcode = serializers.CharField()
-    payment_method = serializers.ChoiceField(choices=['stripe', 'paypal', 'cash'])
+    payment_method = serializers.ChoiceField(choices=['stripe', 'paypal', 'cash', 'bank_transfer'])
     notes = serializers.CharField(required=False, allow_blank=True)

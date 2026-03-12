@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -63,8 +64,17 @@ export default function RegisterPage() {
   }
 
   return (
+                <>
+<Helmet>
+              <title>Create Account — Naresh Jewellers</title>
+              <meta name="description" content="Create a Naresh Jewellers account to save your wishlist and track orders." />
+              <meta property="og:title" content="Create Account — Naresh Jewellers" />
+              <meta property="og:description" content="Create a Naresh Jewellers account to save your wishlist and track orders." />
+              <meta property="og:type" content="website" />
+              <meta property="og:site_name" content="Naresh Jewellers" />
+            </Helmet>
     <main
-      className="min-h-screen flex items-center justify-center px-4 py-20"
+      className="min-h-screen flex items-center justify-center px-4 py-28"
       style={{ backgroundColor: '#1A1F3A' }}
     >
       <div
@@ -267,5 +277,5 @@ export default function RegisterPage() {
         </p>
       </div>
     </main>
-  );
+    </>);
 }

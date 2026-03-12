@@ -25,6 +25,10 @@ INSTALLED_APPS = [
     'orders',
     'enquiries',
     'appointments',
+    'reviews',
+    'wishlist',
+    'buyback',
+    'custom_orders',
     'core',
 ]
 
@@ -86,6 +90,18 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ── Email ──────────────────────────────────────────────────────────────────────
+# In dev, print emails to console. In production set EMAIL_BACKEND to SMTP and
+# provide EMAIL_HOST / EMAIL_HOST_USER / EMAIL_HOST_PASSWORD via .env
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Naresh Jewellers <noreply@nareshjewellers.co.uk>')
+SHOP_EMAIL = config('SHOP_EMAIL', default='info@nareshjewellers.co.uk')
+
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -125,10 +141,26 @@ JAZZMIN_SETTINGS = {
     'copyright': 'Naresh Jewellers',
     'show_sidebar': True,
     'navigation_expanded': True,
+    'custom_links': {
+        'products': [{
+            'name': 'Store Dashboard',
+            'url': 'core_stats',
+            'icon': 'fas fa-chart-bar',
+        }],
+    },
     'icons': {
         'products.product': 'fas fa-gem',
         'products.category': 'fas fa-tags',
         'products.productimage': 'fas fa-images',
+        'orders.order': 'fas fa-shopping-bag',
+        'orders.cart': 'fas fa-cart-plus',
+        'customers.customer': 'fas fa-user-tie',
+        'enquiries.enquiry': 'fas fa-envelope',
+        'appointments.appointment': 'fas fa-calendar-check',
+        'reviews.review': 'fas fa-star',
+        'wishlist.wishlistitem': 'fas fa-heart',
+        'buyback.goldbuyback': 'fas fa-coins',
+        'custom_orders.customorderenquiry': 'fas fa-paint-brush',
         'auth.user': 'fas fa-user',
         'auth.group': 'fas fa-users',
     },

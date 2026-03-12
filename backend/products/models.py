@@ -44,6 +44,11 @@ class Product(models.Model):
     stock_quantity = models.PositiveIntegerField(default=0)
     is_featured = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    # Translatable fields
+    name_hi = models.CharField(max_length=255, blank=True, verbose_name='Name (Hindi)')
+    name_pa = models.CharField(max_length=255, blank=True, verbose_name='Name (Punjabi)')
+    description_hi = models.TextField(blank=True, verbose_name='Description (Hindi)')
+    description_pa = models.TextField(blank=True, verbose_name='Description (Punjabi)')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

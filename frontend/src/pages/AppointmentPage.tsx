@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { bookAppointment } from '../services/api';
 
 const TIME_SLOTS = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -50,7 +51,16 @@ export default function AppointmentPage() {
   }
 
   return (
-    <main className="min-h-screen pt-24 pb-16 px-4" style={{ backgroundColor: '#FAF9F6' }}>
+                <>
+<Helmet>
+              <title>Book an Appointment — Naresh Jewellers</title>
+              <meta name="description" content="Book a private viewing at Naresh Jewellers, Birmingham. See our gold and diamond collection in person." />
+              <meta property="og:title" content="Book an Appointment — Naresh Jewellers" />
+              <meta property="og:description" content="Book a private viewing at Naresh Jewellers, Birmingham. See our gold and diamond collection in person." />
+              <meta property="og:type" content="website" />
+              <meta property="og:site_name" content="Naresh Jewellers" />
+            </Helmet>
+    <main className="min-h-screen pt-32 pb-16 px-4" style={{ backgroundColor: '#FAF9F6' }}>
       <div className="max-w-xl mx-auto">
         <div className="mb-10 text-center">
           <h1 className="text-3xl font-semibold mb-2" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>
@@ -132,5 +142,5 @@ export default function AppointmentPage() {
         </div>
       </div>
     </main>
-  );
+    </>);
 }

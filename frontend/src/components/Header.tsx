@@ -1,18 +1,23 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LANGUAGES } from '../i18n';
+import type { LangCode } from '../i18n';
 import { Link, useLocation } from 'react-router-dom';
 import { FaShoppingCart, FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
-const NAV_LINKS = [
-  { label: 'Home', to: '/', key: 'home' },
-  { label: 'Shop', to: '/shop', key: 'shop' },
-  { label: 'About', to: '/about', key: 'about' },
-  { label: 'Contact', to: '/contact', key: 'contact' },
-  { label: 'Appointments', to: '/appointments', key: 'appointments' },
+const NAV_KEYS = [
+  { to: '/', key: 'home' },
+  { to: '/shop', key: 'shop' },
+  { to: '/sell-gold', key: 'sellGold' },
+  { to: '/about', key: 'about' },
+  { to: '/contact', key: 'contact' },
+  { to: '/appointments', key: 'appointments' },
 ];
 
 export default function Header() {
+  const { t, i18n } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -36,7 +41,7 @@ export default function Header() {
     <>
       <header
         data-testid="header"
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`transition-all duration-300 ${
           scrolled
             ? 'backdrop-blur-md shadow-[0_4px_24px_rgba(15,19,40,0.4)]'
             : 'shadow-[0_2px_12px_rgba(15,19,40,0.2)]'
@@ -64,7 +69,7 @@ export default function Header() {
               data-testid="desktop-nav"
               className="hidden md:flex items-center gap-8"
             >
-              {NAV_LINKS.map((link) => {
+              {NAV_KEYS.map((link) => {
                 const isActive = location.pathname === link.to;
                 return (
                   <Link
@@ -76,7 +81,7 @@ export default function Header() {
                     }`}
                     style={{ fontFamily: 'var(--font-body)' }}
                   >
-                    {link.label}
+                    {t(`nav.${link.key}`)}
                     {isActive && (
                       <span
                         className="absolute bottom-0 left-0 right-0 h-px"
@@ -138,21 +143,21 @@ export default function Header() {
                       className="block px-4 py-2 text-sm text-white hover:text-[#C9A84C] no-underline"
                       style={{ fontFamily: 'var(--font-body)' }}
                     >
-                      My Account
+                      {t('header.myAccount')}
                     </Link>
                     <Link
                       to="/account"
                       className="block px-4 py-2 text-sm text-white hover:text-[#C9A84C] no-underline"
                       style={{ fontFamily: 'var(--font-body)' }}
                     >
-                      Orders
+                      {t('header.orders')}
                     </Link>
                     <button
                       onClick={logout}
                       className="block w-full text-left px-4 py-2 text-sm text-white hover:text-[#C9A84C] transition-colors"
                       style={{ fontFamily: 'var(--font-body)' }}
                     >
-                      Logout
+                      {t('header.logout')}
                     </button>
                   </div>
                 </div>
@@ -163,9 +168,30 @@ export default function Header() {
                   style={{ fontFamily: 'var(--font-body)' }}
                 >
                   <FaUserCircle size={18} />
-                  <span>Sign In</span>
+                  <span>{t('header.signIn')}</span>
                 </Link>
               )}
+
+
+              {/* Language switcher */}
+              <div className="hidden md:flex items-center gap-1">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => i18n.changeLanguage(lang.code as LangCode)}
+                    className="px-1.5 py-0.5 rounded text-xs font-semibold transition-colors duration-150"
+                    style={{
+                      fontFamily: 'var(--font-body)',
+                      color: i18n.language === lang.code ? '#C9A84C' : '#9CA3AF',
+                      backgroundColor: i18n.language === lang.code ? 'rgba(201,168,76,0.15)' : 'transparent',
+                    }}
+                    aria-label={lang.nativeLabel}
+                    title={lang.nativeLabel}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
 
               {/* Mobile hamburger */}
               <button
@@ -198,7 +224,7 @@ export default function Header() {
           </button>
 
           <div className="flex flex-col items-center gap-8">
-            {NAV_LINKS.map((link, i) => {
+            {NAV_KEYS.map((link, i) => {
               const isActive = location.pathname === link.to;
               return (
                 <Link
@@ -210,7 +236,7 @@ export default function Header() {
                   }`}
                   style={{ fontFamily: 'var(--font-heading)' }}
                 >
-                  {link.label}
+                  {t(`nav.${link.key}`)}
                 </Link>
               );
             })}

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getOrders, getProfile, updateProfile } from '../services/api';
-import type { CustomerProfile, Order } from '../types';
+import { getOrders, getProfile, updateProfile, getWishlist, removeWishlistItem } from '../services/api';
+import type { CustomerProfile, Order, WishlistItem } from '../types';
 
 const STATUS_LABELS: Record<Order['status'], string> = {
   pending: 'Pending',
@@ -20,18 +21,27 @@ const STATUS_COLORS: Record<Order['status'], { bg: string; text: string }> = {
   cancelled: { bg: '#FEE2E2', text: '#DC2626' },
 };
 
-type Tab = 'orders' | 'profile';
+type Tab = 'orders' | 'profile' | 'wishlist';
 
 function OrdersSection({ orders, isLoading }: { orders: Order[]; isLoading: boolean }) {
   if (isLoading) {
     return (
+                  <>
+<Helmet>
+              <title>My Account — Naresh Jewellers</title>
+              <meta name="description" content="Manage your orders, wishlist and profile." />
+              <meta property="og:title" content="My Account — Naresh Jewellers" />
+              <meta property="og:description" content="Manage your orders, wishlist and profile." />
+              <meta property="og:type" content="website" />
+              <meta property="og:site_name" content="Naresh Jewellers" />
+            </Helmet>
       <div className="flex items-center justify-center py-16">
         <div
           className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin"
           style={{ borderColor: '#C9A84C', borderTopColor: 'transparent' }}
         />
       </div>
-    );
+    </>);
   }
 
   if (orders.length === 0) {
@@ -253,6 +263,99 @@ function ProfileSection() {
   );
 }
 
+
+function WishlistSection() {
+  const [items, setItems] = useState<WishlistItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getWishlist()
+      .then(setItems)
+      .catch(() => setItems([]))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  async function handleRemove(id: number) {
+    await removeWishlistItem(id);
+    setItems((prev) => prev.filter((i) => i.id !== id));
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin"
+          style={{ borderColor: '#C9A84C', borderTopColor: 'transparent' }} />
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <div className="text-4xl mb-3">&#9825;</div>
+        <p className="text-sm" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
+          Your wishlist is empty.
+        </p>
+        <Link
+          to="/shop"
+          className="inline-block mt-4 px-5 py-2 rounded text-sm font-semibold no-underline"
+          style={{ backgroundColor: '#C9A84C', color: '#0F1328', fontFamily: 'var(--font-body)' }}
+        >
+          Browse Collection
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div data-testid="wishlist-section" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {items.map((item) => {
+        const imageUrl = item.product.primary_image || item.product.images?.[0]?.image || null;
+        return (
+          <div key={item.id} className="flex gap-4 rounded-lg p-4"
+            style={{ border: '1px solid #E5E7EB', backgroundColor: '#FAFAFA' }}>
+            {imageUrl ? (
+              <img src={imageUrl} alt={item.product.name}
+                className="w-20 h-20 object-cover rounded flex-shrink-0" />
+            ) : (
+              <div className="w-20 h-20 rounded flex-shrink-0 flex items-center justify-center"
+                style={{ backgroundColor: '#F3F4F6' }}>
+                <span style={{ color: '#C9A84C', fontSize: 24 }}>&#9670;</span>
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <Link
+                to={'/products/' + item.product.slug}
+                className="block text-sm font-semibold truncate no-underline hover:text-[#C9A84C]"
+                style={{ color: '#1A1F3A', fontFamily: 'var(--font-body)' }}
+              >
+                {item.product.name}
+              </Link>
+              {item.product.price && (
+                <p className="text-sm mt-0.5" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
+                  &pound;{parseFloat(item.product.price).toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+                </p>
+              )}
+              {item.product.is_price_on_request && (
+                <p className="text-sm mt-0.5 italic" style={{ color: '#C9A84C', fontFamily: 'var(--font-body)' }}>
+                  Price on Request
+                </p>
+              )}
+              <button
+                onClick={() => handleRemove(item.id)}
+                className="mt-2 text-xs font-semibold transition-colors hover:text-[#DC2626]"
+                style={{ color: '#9CA3AF', fontFamily: 'var(--font-body)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function AccountPage() {
   const { isAuthenticated, isLoading: authLoading, user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('orders');
@@ -272,11 +375,12 @@ export default function AccountPage() {
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'orders', label: 'Orders' },
+    { key: 'wishlist', label: 'Wishlist' },
     { key: 'profile', label: 'Profile' },
   ];
 
   return (
-    <main className="min-h-screen pt-24 pb-16 px-4" style={{ backgroundColor: '#FAF9F6' }}>
+    <main className="min-h-screen pt-32 pb-16 px-4" style={{ backgroundColor: '#FAF9F6' }}>
       <div className="max-w-5xl mx-auto">
         {/* Page heading */}
         <div className="mb-8">
@@ -343,13 +447,14 @@ export default function AccountPage() {
                 className="text-xl font-semibold mb-1"
                 style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}
               >
-                {activeTab === 'orders' ? 'Order History' : 'Profile Details'}
+                {activeTab === 'orders' ? 'Order History' : activeTab === 'wishlist' ? 'My Wishlist' : 'Profile Details'}
               </h2>
               <div className="w-10 h-0.5 mb-6" style={{ backgroundColor: '#C9A84C' }} />
 
               {activeTab === 'orders' && (
                 <OrdersSection orders={orders} isLoading={ordersLoading} />
               )}
+              {activeTab === 'wishlist' && <WishlistSection />}
               {activeTab === 'profile' && <ProfileSection />}
             </div>
           </div>

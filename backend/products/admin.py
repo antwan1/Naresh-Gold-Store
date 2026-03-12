@@ -43,6 +43,11 @@ class ProductAdmin(admin.ModelAdmin):
         ('Pricing & Stock', {
             'fields': ['price', 'is_price_on_request', 'stock_quantity'],
         }),
+        ('Translations', {
+            'fields': ['name_hi', 'description_hi', 'name_pa', 'description_pa'],
+            'classes': ['collapse'],
+            'description': 'Optional Hindi and Punjabi translations (leave blank to use English)',
+        }),
         ('Status', {
             'fields': ['is_featured', 'is_active', 'created_at', 'updated_at'],
         }),
@@ -50,7 +55,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     def price_display(self, obj):
         if obj.is_price_on_request:
-            return format_html('<em>Price on Request</em>')
+            return format_html('<em>{}</em>', 'Price on Request')
         return f'£{obj.price}' if obj.price else '—'
     price_display.short_description = 'Price'
 

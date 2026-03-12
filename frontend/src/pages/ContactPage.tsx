@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
 import { submitEnquiry, getProduct } from '../services/api';
 import type { Product } from '../types';
@@ -54,7 +55,16 @@ export default function ContactPage() {
   }
 
   return (
-    <main className="min-h-screen pt-24 pb-16 px-4" style={{ backgroundColor: '#FAF9F6' }}>
+                <>
+<Helmet>
+              <title>Contact & Enquiries — Naresh Jewellers</title>
+              <meta name="description" content="Get in touch with Naresh Jewellers. Ask about our jewellery, pricing or book a visit." />
+              <meta property="og:title" content="Contact & Enquiries — Naresh Jewellers" />
+              <meta property="og:description" content="Get in touch with Naresh Jewellers. Ask about our jewellery, pricing or book a visit." />
+              <meta property="og:type" content="website" />
+              <meta property="og:site_name" content="Naresh Jewellers" />
+            </Helmet>
+    <main className="min-h-screen pt-32 pb-16 px-4" style={{ backgroundColor: '#FAF9F6' }}>
       <div className="max-w-5xl mx-auto">
         <div className="mb-10 text-center">
           <h1 className="text-3xl font-semibold mb-2" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>
@@ -153,5 +163,5 @@ export default function ContactPage() {
         </div>
       </div>
     </main>
-  );
+    </>);
 }

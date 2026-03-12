@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AuthUser, Cart, CartItem, Category, CustomerProfile, Order, PaginatedResponse, Product } from '../types';
+import type { AuthUser, Cart, CartItem, Category, CustomerProfile, GoldPrices, Order, PaginatedResponse, Product, Review, WishlistItem } from '../types';
 
 const client = axios.create({
   baseURL: '/api',
@@ -165,3 +165,79 @@ export async function bookAppointment(data: {
 }
 
 export default client;
+
+// ── Reviews ───────────────────────────────────────────────────────────────────
+
+
+export async function getProductReviews(productId: number): Promise<Review[]> {
+  const response = await client.get<Review[]>(`/reviews/${productId}/`);
+  return response.data;
+}
+
+export async function submitReview(data: {
+  product: number;
+  rating: number;
+  title: string;
+  text: string;
+}): Promise<Review> {
+  const response = await authClient.post<Review>('/reviews/', data);
+  return response.data;
+}
+
+// ── Wishlist ──────────────────────────────────────────────────────────────────
+
+export async function getWishlist(): Promise<WishlistItem[]> {
+  const response = await authClient.get<WishlistItem[]>('/wishlist/');
+  return response.data;
+}
+
+export async function toggleWishlist(productId: number): Promise<{ wishlisted: boolean }> {
+  const response = await authClient.post<{ wishlisted: boolean }>(`/wishlist/toggle/${productId}/`);
+  return response.data;
+}
+
+export async function checkWishlisted(productId: number): Promise<{ wishlisted: boolean }> {
+  const response = await authClient.get<{ wishlisted: boolean }>(`/wishlist/toggle/${productId}/`);
+  return response.data;
+}
+
+export async function removeWishlistItem(itemId: number): Promise<void> {
+  await authClient.delete(`/wishlist/${itemId}/`);
+}
+
+// ── Gold Prices ───────────────────────────────────────────────────────────────
+
+export async function getGoldPrices(): Promise<GoldPrices> {
+  const response = await client.get<GoldPrices>('/gold-prices/');
+  return response.data;
+}
+
+
+// ── Gold Buyback ──────────────────────────────────────────────────────────────
+
+export async function submitBuyback(data: {
+  name: string;
+  email: string;
+  phone: string;
+  item_type: string;
+  purity: string;
+  estimated_weight?: string;
+  description?: string;
+}): Promise<void> {
+  await client.post('/buyback/', data);
+}
+
+// ── Custom Orders ─────────────────────────────────────────────────────────────
+
+export async function submitCustomOrder(data: {
+  name: string;
+  email: string;
+  phone: string;
+  piece_type: string;
+  metal: string;
+  budget: string;
+  description: string;
+  occasion?: string;
+}): Promise<void> {
+  await client.post('/custom-orders/', data);
+}

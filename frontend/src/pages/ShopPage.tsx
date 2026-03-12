@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
-import { FaFilter, FaTimes, FaChevronDown } from 'react-icons/fa';
+import { FaFilter, FaTimes, FaChevronDown, FaSearch } from 'react-icons/fa';
 import ProductCard from '../components/ProductCard';
 import { getCategories, getProducts } from '../services/api';
 import type { Category, Product } from '../types';
@@ -71,6 +72,7 @@ export default function ShopPage() {
   const priceMin = searchParams.get('price_min') || '';
   const priceMax = searchParams.get('price_max') || '';
   const ordering = searchParams.get('ordering') || '';
+  const searchQuery = searchParams.get('search') || '';
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
   // ── Local state ────────────────────────────────────────────────────────
@@ -79,6 +81,9 @@ export default function ShopPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Local search input (debounced before hitting URL)
+  const [localSearch, setLocalSearch] = useState(searchQuery);
 
   // Debounced price inputs (so we don't fire API on every keystroke)
   const [localPriceMin, setLocalPriceMin] = useState(priceMin);
@@ -105,6 +110,7 @@ export default function ShopPage() {
     setSearchParams({});
     setLocalPriceMin('');
     setLocalPriceMax('');
+    setLocalSearch('');
   };
 
   const applyPriceFilter = () => {
@@ -121,7 +127,7 @@ export default function ShopPage() {
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
   const hasActiveFilters =
-    selectedCategory || selectedMetal || priceMin || priceMax || ordering;
+    selectedCategory || selectedMetal || priceMin || priceMax || ordering || searchQuery;
 
   // ── API calls ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -138,6 +144,7 @@ export default function ShopPage() {
     if (priceMin) params.price_min = parseFloat(priceMin);
     if (priceMax) params.price_max = parseFloat(priceMax);
     if (ordering) params.ordering = ordering;
+    if (searchQuery) params.search = searchQuery;
 
     getProducts(params)
       .then((res) => {
@@ -149,13 +156,25 @@ export default function ShopPage() {
         setTotalCount(0);
       })
       .finally(() => setLoading(false));
-  }, [selectedCategory, selectedMetal, priceMin, priceMax, ordering, currentPage]);
+  }, [selectedCategory, selectedMetal, priceMin, priceMax, ordering, searchQuery, currentPage]);
 
-  // Keep local price inputs in sync when URL changes externally
+  // Keep local inputs in sync when URL changes externally (e.g. browser back/forward)
   useEffect(() => {
     setLocalPriceMin(priceMin);
     setLocalPriceMax(priceMax);
   }, [priceMin, priceMax]);
+
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  // Debounce search input → URL
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      updateParam('search', localSearch.trim());
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [localSearch, updateParam]);
 
   // ── Sidebar content (reused in both desktop and drawer) ────────────────
   const sidebarContent = useMemo(
@@ -341,9 +360,17 @@ export default function ShopPage() {
   // ── Render ─────────────────────────────────────────────────────────────
   return (
     <main
-      className="min-h-screen pt-16"
+      className="min-h-screen pt-24"
       style={{ backgroundColor: '#FAF9F6' }}
     >
+      <Helmet>
+        <title>Shop — Naresh Jewellers</title>
+        <meta name="description" content="Browse our full collection of handcrafted gold, silver and diamond jewellery. Naresh Jewellers, Birmingham." />
+        <meta property="og:title" content="Shop — Naresh Jewellers" />
+        <meta property="og:description" content="Browse our full collection of handcrafted gold, silver and diamond jewellery. Naresh Jewellers, Birmingham." />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Naresh Jewellers" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Page heading */}
@@ -358,6 +385,39 @@ export default function ShopPage() {
             className="mt-2 w-12 h-px"
             style={{ backgroundColor: '#C9A84C' }}
           />
+        </div>
+
+        {/* Search bar */}
+        <div className="relative mb-6 max-w-lg">
+          <FaSearch
+            size={14}
+            className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ color: '#9CA3AF' }}
+          />
+          <input
+            type="search"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            placeholder="Search jewellery…"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none transition-all duration-200"
+            style={{
+              border: '1px solid #E5E7EB',
+              fontFamily: 'var(--font-body)',
+              color: '#2C2C2C',
+              backgroundColor: '#FFFFFF',
+            }}
+            onFocus={(e) => { e.target.style.borderColor = '#C9A84C'; e.target.style.boxShadow = '0 0 0 1px #C9A84C'; }}
+            onBlur={(e) => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none'; }}
+          />
+          {localSearch && (
+            <button
+              onClick={() => setLocalSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#2C2C2C] transition-colors"
+              aria-label="Clear search"
+            >
+              <FaTimes size={12} />
+            </button>
+          )}
         </div>
 
         {/* Top bar: filter button (mobile) + sort dropdown */}
