@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaInstagram, FaFacebook, FaWhatsapp, FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock } from 'react-icons/fa';
+import { FaWhatsapp, FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock } from 'react-icons/fa';
+import { SiTiktok } from 'react-icons/si';
 
 const QUICK_LINKS = [
   { label: 'Home', to: '/' },
@@ -13,9 +14,8 @@ const QUICK_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { icon: FaInstagram, href: 'https://instagram.com', label: 'Instagram' },
-  { icon: FaFacebook, href: 'https://facebook.com', label: 'Facebook' },
-  { icon: FaWhatsapp, href: 'https://wa.me/44xxxxxxxxxx', label: 'WhatsApp' },
+  { icon: SiTiktok, href: 'https://www.tiktok.com/@nareshjewellers', label: 'TikTok' },
+  { icon: FaWhatsapp, href: 'https://wa.me/447539935044', label: 'WhatsApp' },
 ];
 
 export default function Footer() {
@@ -47,7 +47,7 @@ export default function Footer() {
               Naresh Jewellers
             </h3>
             <p className="text-sm leading-relaxed" style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}>
-              Crafting timeless jewellery with love and tradition. Specialists in gold, silver, diamond, and South-East Asian designs since 1985.
+              Crafting timeless jewellery with love and tradition. Specialists in gold, silver, diamond, and South-East Asian designs since 1996.
             </p>
             {/* Social icons */}
             <div className="flex items-center gap-4 mt-2">
@@ -106,36 +106,36 @@ export default function Footer() {
                   style={{ color: '#C9A84C' }}
                 />
                 <span className="text-sm leading-relaxed" style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}>
-                  123 Jewellers Row<br />
-                  Birmingham, B18 6NF<br />
+                  4 Smethwick High Street<br />
+                  Birmingham, B66 1DX<br />
                   United Kingdom
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <FaPhone size={13} style={{ color: '#C9A84C' }} />
                 <a
-                  href="tel:+441217001234"
+                  href="tel:01215586966"
                   className="text-sm no-underline hover:text-[#C9A84C] transition-colors duration-200"
                   style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}
                 >
-                  +44 121 700 1234
+                  0121 558 6966
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <FaEnvelope size={13} style={{ color: '#C9A84C' }} />
                 <a
-                  href="mailto:info@nareshjewellers.co.uk"
+                  href="mailto:nareshkumari@yahoo.com"
                   className="text-sm no-underline hover:text-[#C9A84C] transition-colors duration-200"
                   style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}
                 >
-                  info@nareshjewellers.co.uk
+                  nareshkumari@yahoo.com
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <FaClock size={13} className="mt-0.5 flex-shrink-0" style={{ color: '#C9A84C' }} />
                 <span className="text-sm leading-relaxed" style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}>
-                  Mon–Sat: 10:00 – 18:00<br />
-                  Sunday: 11:00 – 16:00
+                  Mon–Sat: 11:00 – 18:00<br />
+                  Sunday: Closed
                 </span>
               </li>
             </ul>

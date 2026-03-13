@@ -3,16 +3,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const VALUES = [
-  { icon: '♦', title: 'Master Craftsmanship', body: 'Every piece is handcrafted by our skilled artisans with decades of experience, ensuring each jewel meets our exacting standards.' },
-  { icon: '⚖', title: 'Certified Quality', body: 'All our gold and gemstones are hallmarked and certified, giving you complete confidence in what you wear.' },
-  { icon: '♡', title: 'Family Legacy', body: 'Founded in 1972, Naresh Jewellers has been trusted by families across Birmingham for three generations.' },
-  { icon: '✦', title: 'Bespoke Service', body: 'From custom engagement rings to wedding sets, we work with you to create jewellery that tells your story.' },
-];
-
-const TEAM = [
-  { name: 'Naresh Kumar', role: 'Founder & Master Jeweller', initials: 'NK' },
-  { name: 'Raj Kumar', role: 'Head of Design', initials: 'RK' },
-  { name: 'Priya Sharma', role: 'Client Relations', initials: 'PS' },
+  { icon: '♦', title: 'Master Craftsmanship', body: 'Every piece in our collection is chosen and crafted with care — from intricate 22ct bridal sets to elegant everyday gold jewellery.' },
+  { icon: '⚖', title: 'Hallmarked Quality', body: 'All our gold jewellery is hallmarked by the Birmingham Assay Office, giving you complete confidence and peace of mind in every purchase.' },
+  { icon: '♡', title: 'Family Legacy', body: 'Established in 1996, Naresh Jewellers has spent nearly 30 years serving the Birmingham community with honesty, warmth, and expertise.' },
+  { icon: '✦', title: 'Bespoke Service', body: 'From custom engagement rings to full wedding sets, we work closely with you to create jewellery that tells your unique story.' },
 ];
 
 export default function AboutPage() {
@@ -21,10 +15,10 @@ export default function AboutPage() {
   return (
     <main className="min-h-screen pt-32 pb-16" style={{ backgroundColor: '#FAF9F6' }}>
       <Helmet>
-        <title>About Naresh Jewellers — Handcrafted Jewellery Since 1972</title>
-        <meta name="description" content="Learn about Naresh Jewellers — a family-run jewellery business in Birmingham crafting exquisite gold and diamond pieces since 1972." />
+        <title>About Naresh Jewellers — Handcrafted Jewellery Since 1996</title>
+        <meta name="description" content="Learn about Naresh Jewellers — a family-run jewellery business in Birmingham crafting exquisite gold and diamond pieces since 1996." />
         <meta property="og:title" content="About Naresh Jewellers" />
-        <meta property="og:description" content="Three generations of master jewellery craftsmanship in the heart of Birmingham." />
+        <meta property="og:description" content="Nearly 30 years of family jewellery craftsmanship in the heart of Birmingham." />
         <meta property="og:type" content="website" />
       </Helmet>
 
@@ -35,7 +29,7 @@ export default function AboutPage() {
       >
         <div className="text-center max-w-2xl mx-auto">
           <p className="text-xs tracking-widest uppercase mb-4" style={{ color: '#C9A84C', fontFamily: 'var(--font-body)' }}>
-            Est. 1972
+            Est. 1996
           </p>
           <h1 className="text-4xl sm:text-5xl font-normal mb-4" style={{ color: '#FAF9F6', fontFamily: 'var(--font-display)' }}>
             {t('about.title')}
@@ -57,13 +51,13 @@ export default function AboutPage() {
             <div className="w-10 h-0.5 mb-6" style={{ backgroundColor: '#C9A84C' }} />
             <div className="space-y-4 text-sm leading-relaxed" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
               <p>
-                Naresh Jewellers was born in 1972 when our founder, Naresh Kumar, opened a small workshop in the heart of Birmingham's Jewellery Quarter. His philosophy was simple: create pieces of extraordinary beauty using the finest materials and time-honoured techniques.
+                Naresh Jewellers was founded in 1996, after our family moved to the United Kingdom. My father brought with him a deep love of jewellery and a lifelong knowledge of gold — and it was that passion that led him to open this shop on Smethwick High Street.
               </p>
               <p>
-                Over fifty years later, that same passion runs through everything we do. Our collection spans intricate bridal sets, elegant everyday wear, and bespoke commissions — all crafted with the same care and attention that built our reputation.
+                What began as a small family business has grown into one of Birmingham's most trusted names in gold jewellery. We are proud specialists in 22ct and 24ct gold, South-East Asian bridal sets, and bespoke commissions — and we have been serving the same community for nearly 30 years.
               </p>
               <p>
-                Today, the second and third generations of the Kumar family carry forward that legacy, blending traditional craftsmanship with contemporary design to create jewellery that resonates across cultures and generations.
+                Today, I carry forward my father's legacy — with the same values he built this business on: honesty, quality, and treating every customer like family.
               </p>
             </div>
           </div>
@@ -77,7 +71,7 @@ export default function AboutPage() {
                 Naresh Jewellers
               </p>
               <p className="text-xs mt-1" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
-                Birmingham · Since 1972
+                Birmingham · Since 1996
               </p>
             </div>
           </div>
@@ -111,29 +105,30 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* Specialities */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
         <div className="text-center mb-10">
           <h2 className="text-2xl font-semibold mb-2" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>
-            Meet the Team
+            Our Specialities
           </h2>
           <div className="w-10 h-0.5 mx-auto" style={{ backgroundColor: '#C9A84C' }} />
         </div>
-        <div className="flex flex-wrap justify-center gap-8">
-          {TEAM.map((member) => (
-            <div key={member.name} className="text-center">
-              <div
-                className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold"
-                style={{ backgroundColor: '#1A1F3A', color: '#C9A84C', fontFamily: 'var(--font-body)' }}
-              >
-                {member.initials}
-              </div>
-              <p className="text-sm font-semibold" style={{ color: '#1A1F3A', fontFamily: 'var(--font-body)' }}>
-                {member.name}
-              </p>
-              <p className="text-xs mt-0.5" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
-                {member.role}
-              </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+          {[
+            '22ct & 24ct Gold',
+            'Asian Bridal Sets',
+            'South-East Asian Designs',
+            'Bespoke Commissions',
+            'Gold Buying & Valuations',
+            'Jewellery Repairs',
+          ].map((spec) => (
+            <div
+              key={spec}
+              className="rounded-lg py-4 px-3"
+              style={{ backgroundColor: '#FFFFFF', border: '1px solid rgba(201,168,76,0.3)' }}
+            >
+              <span className="text-lg mb-2 block" style={{ color: '#C9A84C' }}>♦</span>
+              <p className="text-sm font-semibold" style={{ color: '#1A1F3A', fontFamily: 'var(--font-body)' }}>{spec}</p>
             </div>
           ))}
         </div>

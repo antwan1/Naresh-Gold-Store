@@ -181,7 +181,7 @@ export default function SizeGuideModal({ onClose }: SizeGuideModalProps) {
               </p>
               <p className="text-xs" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
                 Visit us in store — we offer free ring and bangle sizing. Or call us on{' '}
-                <a href="tel:+441217001234" className="underline" style={{ color: '#C9A84C' }}>+44 121 700 1234</a>.
+                <a href="tel:01215586966" className="underline" style={{ color: '#C9A84C' }}>0121 558 6966</a>.
               </p>
             </section>
           </div>

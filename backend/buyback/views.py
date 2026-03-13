@@ -30,10 +30,10 @@ class GoldBuybackCreateView(generics.CreateAPIView):
         if buyback.description:
             body += f'  Notes:      {buyback.description}\n'
         body += (
-            f'\nIf you have any questions, please call us on +44 121 700 1234.\n\n'
+            f'\nIf you have any questions, please call us on 0121 558 6966.\n\n'
             f'Warm regards,\n'
             f'Naresh Jewellers\n'
-            f'123 Jewellers Row, Birmingham, B18 6NF'
+            f'4 Smethwick High Street, Birmingham, B66 1DX'
         )
         try:
             send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [buyback.email], fail_silently=True)

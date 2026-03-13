@@ -143,16 +143,15 @@ export default function ContactPage() {
             <div className="rounded-xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
               <h3 className="text-base font-semibold mb-4" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>Visit Our Store</h3>
               <div className="space-y-3 text-sm" style={{ fontFamily: 'var(--font-body)', color: '#6B7280' }}>
-                <p><strong>Address:</strong> 123 Jewellers Row, Birmingham, B18 6NF</p>
-                <p><strong>Phone:</strong> <a href="tel:+441217001234" style={{ color: '#C9A84C' }}>+44 121 700 1234</a></p>
-                <p><strong>Email:</strong> <a href="mailto:info@nareshjewellers.co.uk" style={{ color: '#C9A84C' }}>info@nareshjewellers.co.uk</a></p>
+                <p><strong>Address:</strong> 4 Smethwick High Street, Birmingham, B66 1DX</p>
+                <p><strong>Phone:</strong> <a href="tel:01215586966" style={{ color: '#C9A84C' }}>0121 558 6966</a></p>
+                <p><strong>Email:</strong> <a href="mailto:nareshkumari@yahoo.com" style={{ color: '#C9A84C' }}>nareshkumari@yahoo.com</a></p>
               </div>
             </div>
             <div className="rounded-xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
               <h3 className="text-base font-semibold mb-4" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>Opening Hours</h3>
               <div className="space-y-2 text-sm" style={{ fontFamily: 'var(--font-body)', color: '#6B7280' }}>
-                <div className="flex justify-between"><span>Monday - Friday</span><span style={{ color: '#2C2C2C' }}>10:00 - 18:00</span></div>
-                <div className="flex justify-between"><span>Saturday</span><span style={{ color: '#2C2C2C' }}>10:00 - 17:00</span></div>
+                <div className="flex justify-between"><span>Monday – Saturday</span><span style={{ color: '#2C2C2C' }}>11:00 – 18:00</span></div>
                 <div className="flex justify-between"><span>Sunday</span><span style={{ color: '#2C2C2C' }}>Closed</span></div>
               </div>
             </div>

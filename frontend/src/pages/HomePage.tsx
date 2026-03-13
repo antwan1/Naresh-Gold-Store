@@ -460,7 +460,7 @@ export default function HomePage() {
                   className="text-sm leading-relaxed text-left"
                   style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'var(--font-body)' }}
                 >
-                  123 Jewellers Row<br />Birmingham, B18 6NF
+                  4 Smethwick High Street<br />Birmingham, B66 1DX
                 </p>
               </div>
             </div>
@@ -483,7 +483,7 @@ export default function HomePage() {
                   className="text-sm leading-relaxed text-left"
                   style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'var(--font-body)' }}
                 >
-                  Mon–Sat: 10:00 – 18:00<br />Sunday: 11:00 – 16:00
+                  Mon–Sat: 11:00 – 18:00<br />Sunday: Closed
                 </p>
               </div>
             </div>
@@ -504,7 +504,7 @@ export default function HomePage() {
               Book an Appointment
             </Link>
             <a
-              href="https://maps.google.com/?q=Jewellers+Row+Birmingham"
+              href="https://maps.google.com/?q=4+Smethwick+High+Street+Birmingham+B66+1DX"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-3.5 rounded text-sm font-semibold tracking-wide uppercase no-underline transition-all duration-200 hover:bg-white hover:text-[#1A1F3A]"

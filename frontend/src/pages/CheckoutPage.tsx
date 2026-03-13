@@ -96,27 +96,15 @@ function InputField({
   );
 }
 
-type PaymentMethod = 'cash' | 'bank_transfer';
+type PaymentMethod = 'cash';
 
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; description: string }[] = [
   {
     value: 'cash',
     label: 'Cash on Collection',
-    description: "Pay when you collect your order from our store. We'll contact you to arrange a time.",
-  },
-  {
-    value: 'bank_transfer',
-    label: 'Bank Transfer',
-    description: 'Transfer payment directly to our bank account. Your order will be confirmed once payment is received.',
+    description: "Pay when you collect your order from our store. We'll contact you to arrange a suitable time.",
   },
 ];
-
-const BANK_DETAILS = {
-  accountName: 'Naresh Jewellers Ltd',
-  sortCode: '20-00-00',
-  accountNumber: '12345678',
-  reference: 'Your order number (provided after placing)',
-};
 
 export default function CheckoutPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -268,38 +256,6 @@ export default function CheckoutPage() {
                   })}
                 </div>
 
-                {/* Bank details — shown only when bank transfer is selected */}
-                {paymentMethod === 'bank_transfer' && (
-                  <div
-                    className="mt-4 p-4 rounded-lg"
-                    style={{ backgroundColor: '#F0F9FF', border: '1px solid #BAE6FD' }}
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: '#0369A1', fontFamily: 'var(--font-body)' }}>
-                      Bank Transfer Details
-                    </p>
-                    <div className="space-y-1.5 text-sm" style={{ fontFamily: 'var(--font-body)' }}>
-                      <div className="flex justify-between">
-                        <span style={{ color: '#6B7280' }}>Account Name</span>
-                        <span className="font-semibold" style={{ color: '#1A1F3A' }}>{BANK_DETAILS.accountName}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: '#6B7280' }}>Sort Code</span>
-                        <span className="font-semibold" style={{ color: '#1A1F3A' }}>{BANK_DETAILS.sortCode}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: '#6B7280' }}>Account Number</span>
-                        <span className="font-semibold" style={{ color: '#1A1F3A' }}>{BANK_DETAILS.accountNumber}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span style={{ color: '#6B7280' }}>Reference</span>
-                        <span className="font-semibold" style={{ color: '#1A1F3A' }}>{BANK_DETAILS.reference}</span>
-                      </div>
-                    </div>
-                    <p className="text-xs mt-3" style={{ color: '#0369A1', fontFamily: 'var(--font-body)' }}>
-                      Please use your order number as the payment reference. Your order will be confirmed once we receive the transfer.
-                    </p>
-                  </div>
-                )}
               </div>
 
               {/* Notes */}

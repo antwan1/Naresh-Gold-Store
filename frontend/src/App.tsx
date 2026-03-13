@@ -32,7 +32,7 @@ function WhatsAppButton() {
   return (
     <a
       data-testid="whatsapp-btn"
-      href="https://wa.me/44xxxxxxxxxx?text=Hi%2C%20I%27m%20interested%20in%20Naresh%20Jewellers%20products!"
+      href="https://wa.me/447539935044?text=Hi%2C%20I%27m%20interested%20in%20Naresh%20Jewellers%20products!"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"

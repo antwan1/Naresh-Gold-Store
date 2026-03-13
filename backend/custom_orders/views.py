@@ -31,10 +31,10 @@ class CustomOrderEnquiryCreateView(generics.CreateAPIView):
         body += (
             f'\nYour description:\n"{enquiry.description}"\n\n'
             f'We will be in touch within 2 business days to discuss your vision.\n\n'
-            f'If your matter is urgent, please call us on +44 121 700 1234.\n\n'
+            f'If your matter is urgent, please call us on 0121 558 6966.\n\n'
             f'Warm regards,\n'
             f'Naresh Jewellers\n'
-            f'123 Jewellers Row, Birmingham, B18 6NF'
+            f'4 Smethwick High Street, Birmingham, B66 1DX'
         )
         try:
             send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [enquiry.email], fail_silently=True)
