@@ -68,7 +68,7 @@ export default function HeroSection() {
             className="text-xs tracking-[0.3em] uppercase"
             style={{ color: '#C9A84C', fontFamily: 'var(--font-body)', opacity: 0.8 }}
           >
-            Est. 1985
+            Est. 1996
           </span>
           <div className="w-12 h-px" style={{ backgroundColor: '#C9A84C', opacity: 0.6 }} />
         </div>
