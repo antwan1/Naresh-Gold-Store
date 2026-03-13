@@ -313,7 +313,7 @@ export default function HomePage() {
                   fontWeight: 300,
                 }}
               >
-                For over four decades, Naresh Jewellers has been synonymous with uncompromising quality and timeless elegance. What began as a small family workshop has grown into one of the most trusted jewellery destinations in the region.
+                For nearly 30 years, Naresh Jewellers has been synonymous with uncompromising quality and timeless elegance. What began as a small family shop on Smethwick High Street has grown into one of the most trusted jewellery destinations in the region.
               </p>
               <p
                 className="text-base leading-relaxed"

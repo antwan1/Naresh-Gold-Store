@@ -14,7 +14,7 @@ const QUICK_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { icon: SiTiktok, href: 'https://www.tiktok.com/@nareshjewellers', label: 'TikTok' },
+  { icon: SiTiktok, href: 'https://www.tiktok.com/@nareshkumari06', label: 'TikTok' },
   { icon: FaWhatsapp, href: 'https://wa.me/447539935044', label: 'WhatsApp' },
 ];
 
