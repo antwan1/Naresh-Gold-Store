@@ -48,7 +48,6 @@ class Order(models.Model):
         ('stripe', 'Stripe'),
         ('paypal', 'PayPal'),
         ('cash', 'Cash on Collection'),
-        ('bank_transfer', 'Bank Transfer'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='orders')
@@ -56,10 +55,12 @@ class Order(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES)
     payment_id = models.CharField(max_length=255, blank=True)
-    shipping_address_line1 = models.CharField(max_length=255)
+    contact_phone = models.CharField(max_length=30, blank=True)
+    shipping_address_line1 = models.CharField(max_length=255, blank=True)
     shipping_address_line2 = models.CharField(max_length=255, blank=True)
-    shipping_city = models.CharField(max_length=100)
-    shipping_postcode = models.CharField(max_length=20)
+    shipping_city = models.CharField(max_length=100, blank=True)
+    shipping_postcode = models.CharField(max_length=20, blank=True)
+    shipping_country = models.CharField(max_length=100, blank=True, default='')
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

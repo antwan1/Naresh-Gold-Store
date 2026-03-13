@@ -1,3 +1,6 @@
+import threading
+from django.core.mail import send_mail
+from django.conf import settings as django_settings
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,6 +9,97 @@ from .models import Cart, CartItem, Order, OrderItem
 from .serializers import (
     CartSerializer, CartItemSerializer, OrderSerializer, PlaceOrderSerializer
 )
+
+
+def _send_order_emails(order_id):
+    """Send confirmation emails to customer and shop — runs in background thread."""
+    from .models import Order  # avoid circular import at module level
+    try:
+        order = Order.objects.prefetch_related('items__product').get(pk=order_id)
+    except Order.DoesNotExist:
+        return
+
+    customer = order.user
+    customer_name = f"{customer.first_name} {customer.last_name}".strip() or customer.email
+
+    items_text = "\n".join(
+        f"  • {item.product.name} × {item.quantity}  —  £{item.total_price}"
+        for item in order.items.all()
+    )
+
+    if order.payment_method == 'cash':
+        delivery_info = "Payment & Collection: Cash on Collection — we will contact you to arrange a convenient time."
+        phone_line = f"Contact phone: {order.contact_phone}" if order.contact_phone else ""
+    else:
+        addr_parts = [
+            order.shipping_address_line1,
+            order.shipping_address_line2,
+            order.shipping_city,
+            order.shipping_postcode,
+            order.shipping_country,
+        ]
+        address_str = ", ".join(p for p in addr_parts if p)
+        delivery_info = f"Shipping to: {address_str}"
+        phone_line = f"Contact phone: {order.contact_phone}" if order.contact_phone else ""
+        payment_label = {'stripe': 'Stripe', 'paypal': 'PayPal'}.get(order.payment_method, order.payment_method)
+        delivery_info += f"\nPayment method: {payment_label} — our team will send you a secure payment link shortly."
+
+    # ── Customer confirmation ───────────────────────────────────────────────
+    send_mail(
+        subject=f"Order Confirmed — Naresh Jewellers (Order #{order.id})",
+        message=f"""Dear {customer_name},
+
+Thank you for placing an order with Naresh Jewellers!
+
+───────────────────────────
+Order #{order.id}
+───────────────────────────
+{items_text}
+
+Total: £{order.total_amount}
+
+{delivery_info}
+
+{"Notes: " + order.notes if order.notes else ""}
+
+We will be in touch shortly to confirm the next steps.
+
+Warm regards,
+Naresh Jewellers
+4 Smethwick High Street, Birmingham, B66 1DX
+Tel: 0121 558 6966
+""",
+        from_email=django_settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[customer.email],
+        fail_silently=True,
+    )
+
+    # ── Shop notification ───────────────────────────────────────────────────
+    send_mail(
+        subject=f"New Order #{order.id} — {customer_name}",
+        message=f"""A new order has been placed on Naresh Jewellers.
+
+Customer: {customer_name}
+Email: {customer.email}
+{phone_line}
+
+───────────────────────────
+Order #{order.id}
+───────────────────────────
+{items_text}
+
+Total: £{order.total_amount}
+
+{delivery_info}
+
+{"Notes: " + order.notes if order.notes else ""}
+
+View in admin: http://localhost:8000/admin/orders/order/{order.id}/change/
+""",
+        from_email=django_settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[django_settings.SHOP_EMAIL],
+        fail_silently=True,
+    )
 
 
 class CartViewSet(viewsets.ViewSet):
@@ -110,5 +204,7 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             )
 
         cart.items.all().delete()
+
+        threading.Thread(target=_send_order_emails, args=(order.id,), daemon=True).start()
 
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)

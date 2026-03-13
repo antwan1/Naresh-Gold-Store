@@ -48,17 +48,31 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             'id', 'status', 'total_amount', 'payment_method',
+            'contact_phone',
             'shipping_address_line1', 'shipping_address_line2',
-            'shipping_city', 'shipping_postcode', 'notes',
-            'items', 'created_at',
+            'shipping_city', 'shipping_postcode', 'shipping_country',
+            'notes', 'items', 'created_at',
         ]
         read_only_fields = ['id', 'status', 'total_amount', 'items', 'created_at']
 
 
 class PlaceOrderSerializer(serializers.Serializer):
-    shipping_address_line1 = serializers.CharField()
+    payment_method = serializers.ChoiceField(choices=['stripe', 'paypal', 'cash'])
+    contact_phone = serializers.CharField(required=False, allow_blank=True)
+    shipping_address_line1 = serializers.CharField(required=False, allow_blank=True)
     shipping_address_line2 = serializers.CharField(required=False, allow_blank=True)
-    shipping_city = serializers.CharField()
-    shipping_postcode = serializers.CharField()
-    payment_method = serializers.ChoiceField(choices=['stripe', 'paypal', 'cash', 'bank_transfer'])
+    shipping_city = serializers.CharField(required=False, allow_blank=True)
+    shipping_postcode = serializers.CharField(required=False, allow_blank=True)
+    shipping_country = serializers.CharField(required=False, allow_blank=True)
     notes = serializers.CharField(required=False, allow_blank=True)
+
+    def validate(self, data):
+        if data.get('payment_method') != 'cash':
+            required_shipping = ['shipping_address_line1', 'shipping_city', 'shipping_country']
+            errors = {}
+            for field in required_shipping:
+                if not data.get(field, '').strip():
+                    errors[field] = 'This field is required for online payment.'
+            if errors:
+                raise serializers.ValidationError(errors)
+        return data

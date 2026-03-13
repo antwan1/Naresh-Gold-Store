@@ -6,6 +6,16 @@ import { useCart } from '../context/CartContext';
 import { placeOrder } from '../services/api';
 import type { CartItem } from '../types';
 
+const COUNTRIES = [
+  'United Kingdom', 'United States', 'Canada', 'Australia', 'New Zealand',
+  'India', 'Pakistan', 'Bangladesh', 'Sri Lanka', 'Nepal',
+  'Germany', 'France', 'Netherlands', 'Belgium', 'Spain', 'Italy',
+  'Sweden', 'Norway', 'Denmark', 'Switzerland', 'Austria',
+  'United Arab Emirates', 'Saudi Arabia', 'Qatar', 'Kuwait', 'Bahrain',
+  'Singapore', 'Malaysia', 'South Africa', 'Kenya', 'Nigeria',
+  'Ireland', 'Portugal', 'Poland', 'Czech Republic', 'Hungary',
+];
+
 function OrderSummaryItem({ item }: { item: CartItem }) {
   const primaryImage = item.product.images?.find((img) => img.is_primary) ?? item.product.images?.[0];
   const lineTotal = item.line_total
@@ -49,6 +59,7 @@ function InputField({
   onChange,
   required = false,
   placeholder = '',
+  type = 'text',
   'data-testid': testId,
 }: {
   label: string;
@@ -57,6 +68,7 @@ function InputField({
   onChange: (v: string) => void;
   required?: boolean;
   placeholder?: string;
+  type?: string;
   'data-testid'?: string;
 }) {
   return (
@@ -71,6 +83,7 @@ function InputField({
       </label>
       <input
         id={id}
+        type={type}
         data-testid={testId}
         required={required}
         value={value}
@@ -96,27 +109,46 @@ function InputField({
   );
 }
 
-type PaymentMethod = 'cash';
+type PaymentMethod = 'cash' | 'paypal' | 'stripe';
 
-const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; description: string }[] = [
+const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; description: string; badge?: string }[] = [
   {
     value: 'cash',
     label: 'Cash on Collection',
-    description: "Pay when you collect your order from our store. We'll contact you to arrange a suitable time.",
+    description: "Pay when you collect from our store. We'll contact you to arrange a convenient time.",
+  },
+  {
+    value: 'paypal',
+    label: 'PayPal',
+    description: "We'll send you a secure PayPal payment link after your order is confirmed.",
+    badge: 'Online',
+  },
+  {
+    value: 'stripe',
+    label: 'Card Payment (Stripe)',
+    description: "We'll send you a secure payment link after your order is confirmed.",
+    badge: 'Online',
   },
 ];
 
 export default function CheckoutPage() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const { cart, clearCart } = useCart();
   const navigate = useNavigate();
 
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+
+  // Contact details (cash on collection)
+  const [phone, setPhone] = useState('');
+
+  // Shipping address (online payment)
   const [addressLine1, setAddressLine1] = useState('');
   const [addressLine2, setAddressLine2] = useState('');
   const [city, setCity] = useState('');
   const [postcode, setPostcode] = useState('');
+  const [country, setCountry] = useState('United Kingdom');
+
   const [notes, setNotes] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -125,33 +157,43 @@ export default function CheckoutPage() {
   }, []);
 
   if (authLoading) return null;
-
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: '/checkout' }} replace />;
   }
 
   const items = cart?.items ?? [];
   const total = cart?.total ?? '0.00';
+  const isCash = paymentMethod === 'cash';
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
 
-    if (!addressLine1.trim() || !city.trim() || !postcode.trim()) {
+    if (!isCash && (!addressLine1.trim() || !city.trim() || !country.trim())) {
       setError('Please fill in all required shipping fields.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const order = await placeOrder({
-        shipping_address_line1: addressLine1,
-        ...(addressLine2 ? { shipping_address_line2: addressLine2 } : {}),
-        shipping_city: city,
-        shipping_postcode: postcode,
-        payment_method: paymentMethod,
-        ...(notes ? { notes } : {}),
-      });
+      const payload = isCash
+        ? {
+            payment_method: paymentMethod,
+            contact_phone: phone || undefined,
+            notes: notes || undefined,
+          }
+        : {
+            payment_method: paymentMethod,
+            contact_phone: phone || undefined,
+            shipping_address_line1: addressLine1,
+            shipping_address_line2: addressLine2 || undefined,
+            shipping_city: city,
+            shipping_postcode: postcode || undefined,
+            shipping_country: country,
+            notes: notes || undefined,
+          };
+
+      const order = await placeOrder(payload);
       clearCart();
       navigate(`/order-confirmation/${order.id}`, { replace: true });
     } catch (err: unknown) {
@@ -167,6 +209,8 @@ export default function CheckoutPage() {
     }
   }
 
+  const userEmail = (user as { email?: string } | null)?.email ?? '';
+
   return (
     <main className="min-h-screen pt-32 pb-16 px-4" style={{ backgroundColor: '#FAF9F6' }}>
       <Helmet>
@@ -178,7 +222,6 @@ export default function CheckoutPage() {
         <meta property="og:site_name" content="Naresh Jewellers" />
       </Helmet>
       <div className="max-w-5xl mx-auto">
-
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col lg:flex-row gap-8">
             {/* ── Left: form ── */}
@@ -197,31 +240,12 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              {/* Shipping section */}
-              <div className="rounded-xl p-6 mb-6" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
-                <h2 className="text-xl font-semibold mb-1" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>
-                  Shipping Address
-                </h2>
-                <div className="w-10 h-0.5 mb-5" style={{ backgroundColor: '#C9A84C' }} />
-                <InputField label="Address Line 1" id="address-line1" required value={addressLine1} onChange={setAddressLine1} placeholder="123 High Street" data-testid="checkout-address-line1" />
-                <InputField label="Address Line 2" id="address-line2" value={addressLine2} onChange={setAddressLine2} placeholder="Flat 4 (optional)" data-testid="checkout-address-line2" />
-                <div className="flex gap-3">
-                  <div className="flex-1">
-                    <InputField label="City" id="city" required value={city} onChange={setCity} placeholder="London" data-testid="checkout-city" />
-                  </div>
-                  <div className="w-36">
-                    <InputField label="Postcode" id="postcode" required value={postcode} onChange={setPostcode} placeholder="SW1A 1AA" data-testid="checkout-postcode" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment section */}
+              {/* Payment Method */}
               <div className="rounded-xl p-6 mb-6" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
                 <h2 className="text-xl font-semibold mb-1" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>
                   Payment Method
                 </h2>
                 <div className="w-10 h-0.5 mb-5" style={{ backgroundColor: '#C9A84C' }} />
-
                 <div className="space-y-3">
                   {PAYMENT_OPTIONS.map((opt) => {
                     const selected = paymentMethod === opt.value;
@@ -243,10 +267,20 @@ export default function CheckoutPage() {
                           onChange={() => setPaymentMethod(opt.value)}
                           className="mt-0.5 accent-[#C9A84C]"
                         />
-                        <div>
-                          <p className="text-sm font-semibold" style={{ color: '#1A1F3A', fontFamily: 'var(--font-body)' }}>
-                            {opt.label}
-                          </p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-semibold" style={{ color: '#1A1F3A', fontFamily: 'var(--font-body)' }}>
+                              {opt.label}
+                            </p>
+                            {opt.badge && (
+                              <span
+                                className="text-xs px-2 py-0.5 rounded-full font-semibold"
+                                style={{ backgroundColor: 'rgba(201,168,76,0.15)', color: '#C9A84C', fontFamily: 'var(--font-body)' }}
+                              >
+                                {opt.badge}
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs mt-0.5" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
                             {opt.description}
                           </p>
@@ -255,8 +289,102 @@ export default function CheckoutPage() {
                     );
                   })}
                 </div>
-
               </div>
+
+              {/* Cash on Collection: contact details */}
+              {isCash ? (
+                <div className="rounded-xl p-6 mb-6" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+                  <h2 className="text-xl font-semibold mb-1" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>
+                    Your Contact Details
+                  </h2>
+                  <div className="w-10 h-0.5 mb-5" style={{ backgroundColor: '#C9A84C' }} />
+
+                  {userEmail && (
+                    <div className="mb-4 px-4 py-3 rounded-lg text-sm" style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', fontFamily: 'var(--font-body)', color: '#6B7280' }}>
+                      Confirmation will be sent to <strong style={{ color: '#1A1F3A' }}>{userEmail}</strong>
+                    </div>
+                  )}
+
+                  <InputField
+                    label="Phone Number"
+                    id="contact-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={setPhone}
+                    placeholder="+44 7700 900000"
+                    data-testid="checkout-phone"
+                  />
+                  <p className="text-xs mt-1" style={{ color: '#9CA3AF', fontFamily: 'var(--font-body)' }}>
+                    We'll call or text to arrange your collection time.
+                  </p>
+                </div>
+              ) : (
+                /* Online payment: shipping address */
+                <div className="rounded-xl p-6 mb-6" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+                  <h2 className="text-xl font-semibold mb-1" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>
+                    Shipping Address
+                  </h2>
+                  <div className="w-10 h-0.5 mb-5" style={{ backgroundColor: '#C9A84C' }} />
+
+                  {/* Country */}
+                  <div className="mb-4">
+                    <label
+                      htmlFor="country"
+                      className="block text-sm font-semibold mb-1.5"
+                      style={{ color: '#2C2C2C', fontFamily: 'var(--font-body)' }}
+                    >
+                      Country <span style={{ color: '#DC2626' }}>*</span>
+                    </label>
+                    <select
+                      id="country"
+                      required
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      className="w-full rounded px-4 py-3 text-sm outline-none transition-all duration-200"
+                      style={{
+                        border: '1px solid #E5E7EB',
+                        fontFamily: 'var(--font-body)',
+                        color: '#2C2C2C',
+                        backgroundColor: '#FFFFFF',
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#C9A84C';
+                        e.target.style.boxShadow = '0 0 0 1px #C9A84C';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#E5E7EB';
+                        e.target.style.boxShadow = 'none';
+                      }}
+                    >
+                      {COUNTRIES.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <InputField label="Address Line 1" id="address-line1" required value={addressLine1} onChange={setAddressLine1} placeholder="123 High Street" data-testid="checkout-address-line1" />
+                  <InputField label="Address Line 2" id="address-line2" value={addressLine2} onChange={setAddressLine2} placeholder="Apartment, suite, unit (optional)" data-testid="checkout-address-line2" />
+
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <InputField label="City / Town" id="city" required value={city} onChange={setCity} placeholder="London" data-testid="checkout-city" />
+                    </div>
+                    <div className="w-40">
+                      <InputField label="Postcode / ZIP" id="postcode" value={postcode} onChange={setPostcode} placeholder="SW1A 1AA" data-testid="checkout-postcode" />
+                    </div>
+                  </div>
+
+                  <InputField
+                    label="Phone Number"
+                    id="shipping-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={setPhone}
+                    placeholder="+44 7700 900000"
+                    data-testid="checkout-phone"
+                  />
+                </div>
+              )}
 
               {/* Notes */}
               <div className="rounded-xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
