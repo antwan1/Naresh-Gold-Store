@@ -1,3 +1,4 @@
 [deploy]
-startCommand = "echo PORT=$PORT && cd backend && rm -f gunicorn.ctl && python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers=2 --preload --forwarded-allow-ips='*'"
+startCommand = "cd backend && python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers=2 --forwarded-allow-ips='*'"
 buildCommand = "cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput"
+healthcheckPath = "/health/"
