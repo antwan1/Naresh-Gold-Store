@@ -118,11 +118,13 @@ export async function removeCartItem(itemId: number): Promise<void> {
 export async function placeOrder(data: {
   payment_method: string;
   contact_phone?: string;
+  recipient_name?: string;
   shipping_address_line1?: string;
   shipping_address_line2?: string;
   shipping_city?: string;
   shipping_postcode?: string;
   shipping_country?: string;
+  shipping_cost?: number;
   notes?: string;
 }): Promise<Order> {
   const response = await authClient.post<Order>('/orders/', data);

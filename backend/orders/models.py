@@ -56,6 +56,8 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=20, choices=PAYMENT_CHOICES)
     payment_id = models.CharField(max_length=255, blank=True)
     contact_phone = models.CharField(max_length=30, blank=True)
+    recipient_name = models.CharField(max_length=200, blank=True)
+    shipping_cost = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     shipping_address_line1 = models.CharField(max_length=255, blank=True)
     shipping_address_line2 = models.CharField(max_length=255, blank=True)
     shipping_city = models.CharField(max_length=100, blank=True)

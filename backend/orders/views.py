@@ -181,11 +181,12 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             )
 
         # Calculate total (skip price-on-request items)
+        shipping_cost = serializer.validated_data.get('shipping_cost', 0)
         total = sum(
             item.product.price * item.quantity
             for item in cart_items
             if item.product.price is not None
-        )
+        ) + shipping_cost
 
         order = Order.objects.create(
             user=request.user,
