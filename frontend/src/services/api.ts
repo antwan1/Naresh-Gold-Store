@@ -1,8 +1,12 @@
 import axios from 'axios';
 import type { AuthUser, Cart, CartItem, Category, CustomerProfile, GoldPrices, Order, PaginatedResponse, Product, Review, WishlistItem } from '../types';
 
+// In dev, Vite proxies /api to localhost:8000.
+// In production (Vercel), VITE_API_BASE_URL points to the Railway backend.
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '') + '/api';
+
 const client = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -10,7 +14,7 @@ const client = axios.create({
 
 // Authenticated axios instance — reads token from localStorage on every request
 const authClient = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE,
   headers: {
     'Content-Type': 'application/json',
   },
