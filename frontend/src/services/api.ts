@@ -131,6 +131,16 @@ export async function placeOrder(data: {
   return response.data;
 }
 
+export async function createStripeSession(orderId: number): Promise<{ url: string }> {
+  const response = await authClient.post<{ url: string }>(`/orders/${orderId}/create-stripe-session/`);
+  return response.data;
+}
+
+export async function confirmStripePayment(orderId: number, sessionId: string): Promise<{ status: string }> {
+  const response = await authClient.post<{ status: string }>(`/orders/${orderId}/confirm-stripe/`, { session_id: sessionId });
+  return response.data;
+}
+
 export async function getOrders(): Promise<Order[]> {
   const response = await authClient.get<Order[]>('/orders/');
   return response.data;

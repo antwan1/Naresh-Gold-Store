@@ -8,6 +8,20 @@ from rest_framework.response import Response
 _gold_cache: tuple[float, dict] | None = None
 _CACHE_TTL = 900  # 15 minutes
 
+# Fallback GBP/USD rate if FX API is unreachable
+_FALLBACK_GBP_RATE = 0.77
+
+
+def _fetch_gbp_rate() -> float:
+    """Fetch live USD→GBP rate from frankfurter.app (free, no API key)."""
+    try:
+        url = 'https://api.frankfurter.app/latest?from=USD&to=GBP'
+        with urllib.request.urlopen(url, timeout=5) as resp:
+            data = json.loads(resp.read())
+        return float(data['rates']['GBP'])
+    except Exception:
+        return _FALLBACK_GBP_RATE
+
 
 def _fetch_spot_prices():
     url = 'https://api.metals.live/v1/spot/gold,silver'
@@ -20,10 +34,11 @@ def _fetch_spot_prices():
             prices.update(item)
         gold_usd = float(prices.get('gold', 0))
         silver_usd = float(prices.get('silver', 0))
-        # Approximate GBP conversion (rough — no FX API needed for dev)
-        GBP_RATE = 0.79
-        gold_gbp = gold_usd * GBP_RATE / 31.1035  # troy oz -> grams
-        silver_gbp = silver_usd * GBP_RATE / 31.1035
+        if gold_usd == 0:
+            return None
+        gbp_rate = _fetch_gbp_rate()
+        gold_gbp = gold_usd * gbp_rate / 31.1035  # troy oz -> grams
+        silver_gbp = silver_usd * gbp_rate / 31.1035
         return {
             'gold_per_gram': {
                 '24k': round(gold_gbp, 2),
@@ -32,7 +47,7 @@ def _fetch_spot_prices():
             },
             'silver_per_gram': round(silver_gbp, 2),
             'currency': 'GBP',
-            'source': 'metals.live',
+            'source': 'live',
         }
     except Exception:
         return None
@@ -46,10 +61,10 @@ def gold_prices(request):
         return Response(_gold_cache[1])
     data = _fetch_spot_prices()
     if data is None:
-        # Fallback static prices if API unreachable
+        # Fallback prices based on current market (March 2026 ~£77/g for 24k)
         data = {
-            'gold_per_gram': {'24k': 61.50, '22k': 56.38, '18k': 46.13},
-            'silver_per_gram': 0.77,
+            'gold_per_gram': {'24k': 77.50, '22k': 71.04, '18k': 58.13},
+            'silver_per_gram': 0.84,
             'currency': 'GBP',
             'source': 'fallback',
         }

@@ -265,19 +265,32 @@ export default function HomePage() {
       >
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            {/* Left — image placeholder */}
+            {/* Left — heritage photo */}
             <div className="relative">
               <div
                 className="rounded-lg overflow-hidden"
                 style={{
                   aspectRatio: '4/3',
-                  background: 'linear-gradient(135deg, #0F1328 0%, #2a3160 100%)',
                   border: '1px solid rgba(201,168,76,0.2)',
                 }}
               >
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-8xl opacity-10" style={{ color: '#C9A84C' }}>♦</span>
-                </div>
+                <img
+                  src="/naresh-heritage.jpg"
+                  alt="Naresh Jewellers — Our Heritage"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    el.style.display = 'none';
+                    const parent = el.parentElement;
+                    if (parent) {
+                      parent.style.background = 'linear-gradient(135deg, #0F1328 0%, #2a3160 100%)';
+                      const placeholder = document.createElement('div');
+                      placeholder.className = 'w-full h-full flex items-center justify-center';
+                      placeholder.innerHTML = '<span style="font-size:6rem;opacity:0.1;color:#C9A84C">♦</span>';
+                      parent.appendChild(placeholder);
+                    }
+                  }}
+                />
                 {/* Gold corner flourishes */}
                 <div
                   className="absolute top-4 left-4 w-8 h-8"

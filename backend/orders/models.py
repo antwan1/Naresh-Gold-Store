@@ -45,8 +45,7 @@ class Order(models.Model):
     ]
 
     PAYMENT_CHOICES = [
-        ('stripe', 'Stripe'),
-        ('paypal', 'PayPal'),
+        ('stripe', 'Card (Stripe)'),
         ('cash', 'Cash on Collection'),
     ]
 
@@ -64,6 +63,8 @@ class Order(models.Model):
     shipping_postcode = models.CharField(max_length=20, blank=True)
     shipping_country = models.CharField(max_length=100, blank=True, default='')
     notes = models.TextField(blank=True)
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=4, default='0.0300')
+    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

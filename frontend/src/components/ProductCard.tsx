@@ -103,7 +103,27 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </button>
 
+        {/* Out of stock overlay */}
+        {product.stock_quantity === 0 && (
+          <div
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+          >
+            <span
+              className="px-4 py-2 rounded text-xs font-semibold tracking-widest uppercase"
+              style={{
+                backgroundColor: 'rgba(220,38,38,0.9)',
+                color: '#FFFFFF',
+                fontFamily: 'var(--font-body)',
+              }}
+            >
+              Out of Stock
+            </span>
+          </div>
+        )}
+
         {/* Quick view overlay */}
+        {product.stock_quantity > 0 && (
         <div
           className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
           style={{ backgroundColor: 'rgba(26,31,58,0.45)' }}
@@ -119,6 +139,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             Quick View
           </span>
         </div>
+        )}
       </Link>
 
       {/* Card info */}

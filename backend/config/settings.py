@@ -102,6 +102,11 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Naresh Jewellers <noreply@nareshjewellers.co.uk>')
 SHOP_EMAIL = config('SHOP_EMAIL', default='nareshkumari@yahoo.com')
 
+# Stripe
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')
+
 # Django REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

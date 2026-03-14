@@ -57,7 +57,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class PlaceOrderSerializer(serializers.Serializer):
-    payment_method = serializers.ChoiceField(choices=['stripe', 'paypal', 'cash'])
+    payment_method = serializers.ChoiceField(choices=['stripe', 'cash'])
     contact_phone = serializers.CharField(required=False, allow_blank=True)
     recipient_name = serializers.CharField(required=False, allow_blank=True)
     shipping_cost = serializers.DecimalField(max_digits=6, decimal_places=2, required=False, default=0)

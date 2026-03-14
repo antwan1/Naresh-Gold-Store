@@ -62,18 +62,24 @@ export default function AboutPage() {
             </div>
           </div>
           <div
-            className="rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: '#1A1F3A', minHeight: '280px', background: 'linear-gradient(135deg, #1A1F3A 0%, #2a3160 100%)' }}
+            className="rounded-xl overflow-hidden"
+            style={{ minHeight: '280px', border: '1px solid rgba(201,168,76,0.2)' }}
           >
-            <div className="text-center p-8">
-              <span className="text-7xl" style={{ color: '#C9A84C', opacity: 0.4 }}>♦</span>
-              <p className="mt-4 text-sm tracking-widest uppercase" style={{ color: '#C9A84C', fontFamily: 'var(--font-body)' }}>
-                Naresh Jewellers
-              </p>
-              <p className="text-xs mt-1" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
-                Birmingham · Since 1996
-              </p>
-            </div>
+            <img
+              src="/naresh-heritage.jpg"
+              alt="Naresh Jewellers — Our Story"
+              className="w-full h-full object-cover"
+              style={{ minHeight: '280px' }}
+              onError={(e) => {
+                const el = e.currentTarget;
+                el.style.display = 'none';
+                const parent = el.parentElement;
+                if (parent) {
+                  parent.style.background = 'linear-gradient(135deg, #1A1F3A 0%, #2a3160 100%)';
+                  parent.innerHTML = `<div class="text-center p-8"><span style="font-size:4.5rem;color:#C9A84C;opacity:0.4">♦</span><p style="margin-top:1rem;font-size:0.875rem;letter-spacing:0.1em;text-transform:uppercase;color:#C9A84C;font-family:var(--font-body)">Naresh Jewellers</p><p style="font-size:0.75rem;margin-top:0.25rem;color:#6B7280;font-family:var(--font-body)">Birmingham · Since 1996</p></div>`;
+                }
+              }}
+            />
           </div>
         </div>
       </section>

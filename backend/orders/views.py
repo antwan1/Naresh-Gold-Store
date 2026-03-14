@@ -1,4 +1,5 @@
 import threading
+import stripe
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
 from rest_framework import viewsets, mixins, status
@@ -41,8 +42,7 @@ def _send_order_emails(order_id):
         address_str = ", ".join(p for p in addr_parts if p)
         delivery_info = f"Shipping to: {address_str}"
         phone_line = f"Contact phone: {order.contact_phone}" if order.contact_phone else ""
-        payment_label = {'stripe': 'Stripe', 'paypal': 'PayPal'}.get(order.payment_method, order.payment_method)
-        delivery_info += f"\nPayment method: {payment_label} — our team will send you a secure payment link shortly."
+        delivery_info += "\nPayment: Card payment received via Stripe — your payment has been confirmed."
 
     # ── Customer confirmation ───────────────────────────────────────────────
     send_mail(
@@ -180,6 +180,18 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Validate stock before creating anything
+        out_of_stock = [
+            item.product.name
+            for item in cart_items
+            if item.product.stock_quantity < item.quantity
+        ]
+        if out_of_stock:
+            return Response(
+                {'error': f"Insufficient stock for: {', '.join(out_of_stock)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # Calculate total (skip price-on-request items)
         shipping_cost = serializer.validated_data.get('shipping_cost', 0)
         total = sum(
@@ -188,9 +200,15 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             if item.product.price is not None
         ) + shipping_cost
 
+        from decimal import Decimal
+        commission_rate = Decimal('0.0300')
+        commission_amount = (Decimal(str(total)) * commission_rate).quantize(Decimal('0.01'))
+
         order = Order.objects.create(
             user=request.user,
             total_amount=total,
+            commission_rate=commission_rate,
+            commission_amount=commission_amount,
             **serializer.validated_data,
         )
 
@@ -203,9 +221,75 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                 unit_price=unit_price,
                 total_price=unit_price * item.quantity,
             )
+            # Decrement stock
+            item.product.stock_quantity = max(0, item.product.stock_quantity - item.quantity)
+            item.product.save(update_fields=['stock_quantity'])
 
         cart.items.all().delete()
 
-        threading.Thread(target=_send_order_emails, args=(order.id,), daemon=True).start()
+        # For cash orders, email immediately. For Stripe, email after payment is confirmed.
+        if order.payment_method == 'cash':
+            threading.Thread(target=_send_order_emails, args=(order.id,), daemon=True).start()
 
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], url_path='create-stripe-session')
+    def create_stripe_session(self, request, pk=None):
+        order = self.get_object()
+        if order.payment_method != 'stripe':
+            return Response({'error': 'Not a Stripe order'}, status=status.HTTP_400_BAD_REQUEST)
+
+        stripe.api_key = django_settings.STRIPE_SECRET_KEY
+        frontend_url = django_settings.FRONTEND_URL
+
+        line_items = []
+        for item in order.items.select_related('product').all():
+            line_items.append({
+                'price_data': {
+                    'currency': 'gbp',
+                    'product_data': {'name': item.product.name},
+                    'unit_amount': int(item.unit_price * 100),
+                },
+                'quantity': item.quantity,
+            })
+
+        if order.shipping_cost:
+            line_items.append({
+                'price_data': {
+                    'currency': 'gbp',
+                    'product_data': {'name': 'Shipping'},
+                    'unit_amount': int(order.shipping_cost * 100),
+                },
+                'quantity': 1,
+            })
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            customer_email=request.user.email,
+            success_url=f"{frontend_url}/order-confirmation/{order.id}?stripe_session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{frontend_url}/checkout",
+            metadata={'order_id': str(order.id)},
+        )
+        return Response({'url': session.url})
+
+    @action(detail=True, methods=['post'], url_path='confirm-stripe')
+    def confirm_stripe(self, request, pk=None):
+        order = self.get_object()
+        session_id = request.data.get('session_id')
+        if not session_id:
+            return Response({'error': 'Missing session_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        stripe.api_key = django_settings.STRIPE_SECRET_KEY
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            if (session.payment_status == 'paid'
+                    and str(session.metadata.get('order_id')) == str(order.id)):
+                order.status = 'confirmed'
+                order.save()
+                threading.Thread(target=_send_order_emails, args=(order.id,), daemon=True).start()
+                return Response({'status': 'confirmed'})
+            return Response({'error': 'Payment not confirmed'}, status=status.HTTP_400_BAD_REQUEST)
+        except stripe.StripeError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

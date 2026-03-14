@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { getProfile, placeOrder } from '../services/api';
+import { getProfile, placeOrder, createStripeSession } from '../services/api';
 import type { CartItem } from '../types';
 
 const COUNTRIES = [
@@ -92,12 +92,11 @@ function InputField({
   );
 }
 
-type PaymentMethod = 'cash' | 'paypal' | 'stripe';
+type PaymentMethod = 'cash' | 'stripe';
 
 const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; description: string; badge?: string }[] = [
   { value: 'cash', label: 'Cash on Collection', description: "Pay when you collect from our store. We'll contact you to arrange a convenient time." },
-  { value: 'paypal', label: 'PayPal', description: "We'll send you a secure PayPal payment link after your order is confirmed.", badge: 'Online' },
-  { value: 'stripe', label: 'Card Payment (Stripe)', description: "We'll send you a secure payment link after your order is confirmed.", badge: 'Online' },
+  { value: 'stripe', label: 'Card Payment', description: 'Pay securely by card. You will be redirected to our payment page to complete your purchase.', badge: 'Online' },
 ];
 
 export default function CheckoutPage() {
@@ -178,8 +177,13 @@ export default function CheckoutPage() {
       };
 
       const order = await placeOrder(payload);
-      clearCart();
-      navigate(`/order-confirmation/${order.id}`, { replace: true });
+      if (paymentMethod === 'stripe') {
+        const session = await createStripeSession(order.id);
+        window.location.href = session.url;
+      } else {
+        clearCart();
+        navigate(`/order-confirmation/${order.id}`, { replace: true });
+      }
     } catch (err: unknown) {
       const data = (err as { response?: { data?: Record<string, string | string[]> } })?.response?.data;
       if (data) {
@@ -420,7 +424,9 @@ export default function CheckoutPage() {
                     cursor: isSubmitting || items.length === 0 ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  {isSubmitting ? 'Placing Order…' : 'Place Order'}
+                  {isSubmitting
+                    ? (paymentMethod === 'stripe' ? 'Redirecting to Stripe…' : 'Placing Order…')
+                    : (paymentMethod === 'stripe' ? `Pay £${isCash ? cartTotal.toFixed(2) : orderTotal.toFixed(2)} with Stripe` : 'Place Order')}
                 </button>
 
                 <p className="text-center text-xs mt-3" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>

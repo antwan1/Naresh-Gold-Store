@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useParams } from 'react-router-dom';
-import { getOrder } from '../services/api';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { getOrder, confirmStripePayment } from '../services/api';
 import type { Order } from '../types';
 
 const STATUS_LABELS: Record<Order['status'], string> = {
@@ -22,9 +22,11 @@ const STATUS_COLORS: Record<Order['status'], { bg: string; text: string }> = {
 
 export default function OrderConfirmationPage() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [stripeConfirmed, setStripeConfirmed] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -34,11 +36,26 @@ export default function OrderConfirmationPage() {
       setIsLoading(false);
       return;
     }
-    getOrder(orderId)
-      .then(setOrder)
-      .catch(() => setError('Could not load your order details.'))
-      .finally(() => setIsLoading(false));
-  }, [id]);
+
+    const stripeSessionId = searchParams.get('stripe_session_id');
+
+    const load = async () => {
+      try {
+        if (stripeSessionId) {
+          await confirmStripePayment(orderId, stripeSessionId);
+          setStripeConfirmed(true);
+        }
+        const data = await getOrder(orderId);
+        setOrder(data);
+      } catch {
+        setError('Could not load your order details.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, [id, searchParams]);
 
   if (isLoading) {
     return (
@@ -85,6 +102,12 @@ export default function OrderConfirmationPage() {
         >
           Order Confirmed!
         </h1>
+
+        {stripeConfirmed && (
+          <div className="mb-6 px-4 py-3 rounded-lg text-sm" style={{ backgroundColor: '#D1FAE5', border: '1px solid #6EE7B7', color: '#065F46', fontFamily: 'var(--font-body)' }}>
+            Payment received — thank you!
+          </div>
+        )}
 
         {error ? (
           <p className="text-sm mb-8" style={{ color: '#DC2626', fontFamily: 'var(--font-body)' }}>
