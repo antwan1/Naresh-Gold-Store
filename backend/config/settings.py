@@ -97,6 +97,15 @@ MEDIA_ROOT = config('MEDIA_ROOT', default=str(BASE_DIR / 'media'))
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ── Security (production only) ─────────────────────────────────────────────
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
 # ── Email ──────────────────────────────────────────────────────────────────────
 # In dev, print emails to console. In production set EMAIL_BACKEND to SMTP and
 # provide EMAIL_HOST / EMAIL_HOST_USER / EMAIL_HOST_PASSWORD via .env
@@ -107,7 +116,7 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Naresh Jewellers <noreply@nareshjewellers.co.uk>')
-SHOP_EMAIL = config('SHOP_EMAIL', default='nareshkumari@yahoo.com')
+SHOP_EMAIL = config('SHOP_EMAIL', default='nareshkumari100@yahoo.com')
 
 # Stripe
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')

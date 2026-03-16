@@ -124,18 +124,17 @@ export default function Footer() {
               <li className="flex items-center gap-3">
                 <FaEnvelope size={13} style={{ color: '#C9A84C' }} />
                 <a
-                  href="mailto:nareshkumari@yahoo.com"
+                  href="mailto:nareshkumari100@yahoo.com"
                   className="text-sm no-underline hover:text-[#C9A84C] transition-colors duration-200"
                   style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}
                 >
-                  nareshkumari@yahoo.com
+                  nareshkumari100@yahoo.com
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <FaClock size={13} className="mt-0.5 flex-shrink-0" style={{ color: '#C9A84C' }} />
                 <span className="text-sm leading-relaxed" style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}>
-                  Mon–Sat: 11:00 – 18:00<br />
-                  Sunday: Closed
+                  Mon–Sun: 11:00 – 18:00
                 </span>
               </li>
             </ul>
