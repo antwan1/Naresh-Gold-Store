@@ -25,6 +25,7 @@ export interface Product {
   weight_grams: string;
   purity: string;
   price: string | null;
+  live_price: number | null;
   is_price_on_request: boolean;
   sku: string;
   stock_quantity: number;

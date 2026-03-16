@@ -180,12 +180,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             >
               Price on Request
             </p>
-          ) : product.price ? (
+          ) : (product.live_price ?? product.price) ? (
             <p
               className="text-base font-bold"
               style={{ color: '#2C2C2C', fontFamily: 'var(--font-body)' }}
             >
-              £{parseFloat(product.price).toLocaleString('en-GB', {
+              £{(product.live_price ?? parseFloat(product.price!)).toLocaleString('en-GB', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}

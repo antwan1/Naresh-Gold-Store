@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Category, Product, ProductImage
+from core.gold_price import live_price_for_product
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -23,13 +24,15 @@ class ProductListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
     primary_image = serializers.SerializerMethodField()
+    live_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'slug', 'category', 'metal_type', 'weight_grams',
-            'purity', 'price', 'is_price_on_request', 'sku', 'stock_quantity',
-            'is_featured', 'is_active', 'images', 'primary_image', 'created_at',
+            'purity', 'price', 'live_price', 'is_price_on_request', 'sku',
+            'stock_quantity', 'is_featured', 'is_active', 'images',
+            'primary_image', 'created_at',
         ]
 
     def get_primary_image(self, obj):
@@ -40,6 +43,9 @@ class ProductListSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(primary.image.url)
             return primary.image.url
         return None
+
+    def get_live_price(self, obj):
+        return live_price_for_product(obj.metal_type, obj.purity, obj.weight_grams)
 
 
 class ProductDetailSerializer(ProductListSerializer):

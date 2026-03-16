@@ -392,13 +392,13 @@ export default function ProductDetailPage() {
                 >
                   Price on Request
                 </p>
-              ) : product.price ? (
+              ) : (product.live_price ?? product.price) ? (
                 <p
                   data-testid="product-price"
                   className="text-2xl font-bold"
                   style={{ color: '#2C2C2C', fontFamily: 'var(--font-body)' }}
                 >
-                  £{parseFloat(product.price).toLocaleString('en-GB', {
+                  £{(product.live_price ?? parseFloat(product.price!)).toLocaleString('en-GB', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
