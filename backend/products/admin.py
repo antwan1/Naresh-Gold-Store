@@ -41,7 +41,8 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ['metal_type', 'weight_grams', 'purity'],
         }),
         ('Pricing & Stock', {
-            'fields': ['price', 'is_price_on_request', 'stock_quantity'],
+            'fields': ['making_charge', 'price', 'is_price_on_request', 'stock_quantity'],
+            'description': 'Live price = (weight × spot price + making charge) × 1.20 VAT. Set "price" only to override live pricing entirely.',
         }),
         ('Translations', {
             'fields': ['name_hi', 'description_hi', 'name_pa', 'description_pa'],
