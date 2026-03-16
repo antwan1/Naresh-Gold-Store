@@ -1,5 +1,6 @@
 import time
 import urllib.request
+import urllib.error
 import json
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -8,49 +9,56 @@ from rest_framework.response import Response
 _gold_cache: tuple[float, dict] | None = None
 _CACHE_TTL = 900  # 15 minutes
 
-# Fallback GBP/USD rate if FX API is unreachable
-_FALLBACK_GBP_RATE = 0.77
+_TROY_OZ_TO_GRAM = 31.1035
 
 
-def _fetch_gbp_rate() -> float:
-    """Fetch live USD→GBP rate from frankfurter.app (free, no API key)."""
+def _fetch_yahoo_xau_gbp() -> float | None:
+    """Fetch live XAU/GBP (gold price in GBP per troy oz) from Yahoo Finance."""
+    url = 'https://query1.finance.yahoo.com/v8/finance/chart/XAUGBP=X?interval=1d&range=1d'
+    headers = {'User-Agent': 'Mozilla/5.0'}
     try:
-        url = 'https://api.frankfurter.app/latest?from=USD&to=GBP'
-        with urllib.request.urlopen(url, timeout=5) as resp:
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=8) as resp:
             data = json.loads(resp.read())
-        return float(data['rates']['GBP'])
+        price = data['chart']['result'][0]['meta']['regularMarketPrice']
+        return float(price)
     except Exception:
-        return _FALLBACK_GBP_RATE
+        return None
+
+
+def _fetch_silver_gbp() -> float | None:
+    """Fetch live XAG/GBP (silver price in GBP per troy oz) from Yahoo Finance."""
+    url = 'https://query1.finance.yahoo.com/v8/finance/chart/XAGGBP=X?interval=1d&range=1d'
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    try:
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = json.loads(resp.read())
+        price = data['chart']['result'][0]['meta']['regularMarketPrice']
+        return float(price)
+    except Exception:
+        return None
 
 
 def _fetch_spot_prices():
-    url = 'https://api.metals.live/v1/spot/gold,silver'
-    try:
-        with urllib.request.urlopen(url, timeout=5) as resp:
-            data = json.loads(resp.read())
-        # data is a list: [{'gold': price_usd}, {'silver': price_usd}]
-        prices = {}
-        for item in data:
-            prices.update(item)
-        gold_usd = float(prices.get('gold', 0))
-        silver_usd = float(prices.get('silver', 0))
-        if gold_usd == 0:
-            return None
-        gbp_rate = _fetch_gbp_rate()
-        gold_gbp = gold_usd * gbp_rate / 31.1035  # troy oz -> grams
-        silver_gbp = silver_usd * gbp_rate / 31.1035
-        return {
-            'gold_per_gram': {
-                '24k': round(gold_gbp, 2),
-                '22k': round(gold_gbp * 22 / 24, 2),
-                '18k': round(gold_gbp * 18 / 24, 2),
-            },
-            'silver_per_gram': round(silver_gbp, 2),
-            'currency': 'GBP',
-            'source': 'live',
-        }
-    except Exception:
+    gold_gbp_oz = _fetch_yahoo_xau_gbp()
+    if gold_gbp_oz is None:
         return None
+
+    silver_gbp_oz = _fetch_silver_gbp() or 0
+    gold_gbp_g = gold_gbp_oz / _TROY_OZ_TO_GRAM
+    silver_gbp_g = silver_gbp_oz / _TROY_OZ_TO_GRAM
+
+    return {
+        'gold_per_gram': {
+            '24k': round(gold_gbp_g, 2),
+            '22k': round(gold_gbp_g * 22 / 24, 2),
+            '18k': round(gold_gbp_g * 18 / 24, 2),
+        },
+        'silver_per_gram': round(silver_gbp_g, 2),
+        'currency': 'GBP',
+        'source': 'live',
+    }
 
 
 @api_view(['GET'])
@@ -59,14 +67,16 @@ def gold_prices(request):
     now = time.time()
     if _gold_cache and (now - _gold_cache[0]) < _CACHE_TTL:
         return Response(_gold_cache[1])
+
     data = _fetch_spot_prices()
     if data is None:
-        # Fallback prices based on current market (March 2026 ~£77/g for 24k)
+        # Fallback prices (update periodically if API goes down)
         data = {
             'gold_per_gram': {'24k': 77.50, '22k': 71.04, '18k': 58.13},
             'silver_per_gram': 0.84,
             'currency': 'GBP',
             'source': 'fallback',
         }
+
     _gold_cache = (now, data)
     return Response(data)
