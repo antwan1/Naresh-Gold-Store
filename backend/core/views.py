@@ -2,50 +2,46 @@ import time
 import urllib.request
 import urllib.error
 import json
+import logging
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-# Simple in-memory cache: (timestamp, data)
+logger = logging.getLogger(__name__)
+
 _gold_cache: tuple[float, dict] | None = None
 _CACHE_TTL = 900  # 15 minutes
-
 _TROY_OZ_TO_GRAM = 31.1035
 
-
-def _fetch_yahoo_xau_gbp() -> float | None:
-    """Fetch live XAU/GBP (gold price in GBP per troy oz) from Yahoo Finance."""
-    url = 'https://query1.finance.yahoo.com/v8/finance/chart/XAUGBP=X?interval=1d&range=1d'
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            data = json.loads(resp.read())
-        price = data['chart']['result'][0]['meta']['regularMarketPrice']
-        return float(price)
-    except Exception:
-        return None
+_YAHOO_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    'Accept': 'application/json',
+    'Accept-Language': 'en-GB,en;q=0.9',
+}
 
 
-def _fetch_silver_gbp() -> float | None:
-    """Fetch live XAG/GBP (silver price in GBP per troy oz) from Yahoo Finance."""
-    url = 'https://query1.finance.yahoo.com/v8/finance/chart/XAGGBP=X?interval=1d&range=1d'
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            data = json.loads(resp.read())
-        price = data['chart']['result'][0]['meta']['regularMarketPrice']
-        return float(price)
-    except Exception:
-        return None
+def _yahoo_price(symbol: str) -> float | None:
+    """Try both Yahoo Finance query endpoints for a symbol."""
+    for base in ('https://query2.finance.yahoo.com', 'https://query1.finance.yahoo.com'):
+        url = f'{base}/v8/finance/chart/{symbol}?interval=1d&range=1d'
+        try:
+            req = urllib.request.Request(url, headers=_YAHOO_HEADERS)
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read())
+            price = data['chart']['result'][0]['meta']['regularMarketPrice']
+            return float(price)
+        except Exception as e:
+            logger.warning('Yahoo Finance %s failed (%s): %s', base, symbol, e)
+    return None
 
 
 def _fetch_spot_prices():
-    gold_gbp_oz = _fetch_yahoo_xau_gbp()
+    gold_gbp_oz = _yahoo_price('XAUGBP=X')
     if gold_gbp_oz is None:
+        logger.error('All gold price sources failed, using fallback')
         return None
 
-    silver_gbp_oz = _fetch_silver_gbp() or 0
+    silver_gbp_oz = _yahoo_price('XAGGBP=X') or 0
     gold_gbp_g = gold_gbp_oz / _TROY_OZ_TO_GRAM
     silver_gbp_g = silver_gbp_oz / _TROY_OZ_TO_GRAM
 
@@ -70,7 +66,6 @@ def gold_prices(request):
 
     data = _fetch_spot_prices()
     if data is None:
-        # Fallback prices (update periodically if API goes down)
         data = {
             'gold_per_gram': {'24k': 77.50, '22k': 71.04, '18k': 58.13},
             'silver_per_gram': 0.84,
