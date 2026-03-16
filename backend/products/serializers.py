@@ -45,7 +45,7 @@ class ProductListSerializer(serializers.ModelSerializer):
         return None
 
     def get_live_price(self, obj):
-        return live_price_for_product(obj.metal_type, obj.purity, obj.weight_grams)
+        return live_price_for_product(obj.metal_type, obj.purity, obj.weight_grams, obj.making_charge)
 
 
 class ProductDetailSerializer(ProductListSerializer):

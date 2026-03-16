@@ -66,22 +66,17 @@ def get_prices() -> dict:
     return data
 
 
-MAKING_CHARGE = 100.00  # £ flat making charge
-VAT_RATE = 0.20         # 20% UK VAT
+VAT_RATE = 0.20  # 20% UK VAT
 
 
-def _apply_charges(metal_value: float) -> float:
-    """Apply making charge and VAT: (metal_value + making_charge) × (1 + VAT)."""
-    return round((metal_value + MAKING_CHARGE) * (1 + VAT_RATE), 2)
-
-
-def live_price_for_product(metal_type: str, purity: str, weight_grams) -> float | None:
-    """Calculate live price: (weight × spot_price_per_gram + £100 making) + 20% VAT."""
+def live_price_for_product(metal_type: str, purity: str, weight_grams, making_charge=0) -> float | None:
+    """Calculate live price: (weight × spot_price_per_gram + making_charge) × (1 + VAT)."""
     if not weight_grams:
         return None
 
     prices = get_prices()
     weight = float(weight_grams)
+    making = float(making_charge or 0)
 
     if metal_type == 'gold':
         match = re.search(r'(\d+)', str(purity))
@@ -94,9 +89,9 @@ def live_price_for_product(metal_type: str, purity: str, weight_grams) -> float 
         else:
             key = f'{karat}k'
             price_per_gram = prices['gold_per_gram'].get(key, gold_24k * karat / 24)
-        return _apply_charges(price_per_gram * weight)
+        return round((price_per_gram * weight + making) * (1 + VAT_RATE), 2)
 
     if metal_type == 'silver':
-        return _apply_charges(prices['silver_per_gram'] * weight)
+        return round((prices['silver_per_gram'] * weight + making) * (1 + VAT_RATE), 2)
 
     return None

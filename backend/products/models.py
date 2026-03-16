@@ -39,6 +39,7 @@ class Product(models.Model):
     weight_grams = models.DecimalField(max_digits=8, decimal_places=2)
     purity = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    making_charge = models.DecimalField(max_digits=8, decimal_places=2, default=0, help_text='Fixed making/labour charge added before VAT (£)')
     is_price_on_request = models.BooleanField(default=False)
     sku = models.CharField(max_length=100, unique=True)
     stock_quantity = models.PositiveIntegerField(default=0)
