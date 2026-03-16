@@ -37,10 +37,10 @@ def _fetch_spot_prices():
     if not gold_usd_oz or not gbp_per_usd:
         return None
 
-    gold_gbp_g = (gold_usd_oz * gbp_per_usd) / _TROY_OZ_TO_GRAM
+    gold_gbp_g = (gold_usd_oz / gbp_per_usd) / _TROY_OZ_TO_GRAM
 
     silver_usd_oz = _yahoo_price('SI=F') or 0
-    silver_gbp_g = (silver_usd_oz * gbp_per_usd) / _TROY_OZ_TO_GRAM
+    silver_gbp_g = (silver_usd_oz / gbp_per_usd) / _TROY_OZ_TO_GRAM
 
     return {
         'gold_per_gram': {
