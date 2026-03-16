@@ -66,8 +66,17 @@ def get_prices() -> dict:
     return data
 
 
+MAKING_CHARGE = 100.00  # £ flat making charge
+VAT_RATE = 0.20         # 20% UK VAT
+
+
+def _apply_charges(metal_value: float) -> float:
+    """Apply making charge and VAT: (metal_value + making_charge) × (1 + VAT)."""
+    return round((metal_value + MAKING_CHARGE) * (1 + VAT_RATE), 2)
+
+
 def live_price_for_product(metal_type: str, purity: str, weight_grams) -> float | None:
-    """Calculate live price for a product given its metal, purity, and weight."""
+    """Calculate live price: (weight × spot_price_per_gram + £100 making) + 20% VAT."""
     if not weight_grams:
         return None
 
@@ -75,21 +84,19 @@ def live_price_for_product(metal_type: str, purity: str, weight_grams) -> float 
     weight = float(weight_grams)
 
     if metal_type == 'gold':
-        # Extract karat number from purity string e.g. "22K", "22 Carat", "22ct"
         match = re.search(r'(\d+)', str(purity))
         if not match:
             return None
         karat = int(match.group(1))
+        gold_24k = prices['gold_per_gram']['24k']
         if karat not in (9, 18, 22, 24):
-            # Interpolate from 24k price
-            gold_24k = prices['gold_per_gram']['24k']
             price_per_gram = gold_24k * karat / 24
         else:
             key = f'{karat}k'
-            price_per_gram = prices['gold_per_gram'].get(key, prices['gold_per_gram']['24k'] * karat / 24)
-        return round(price_per_gram * weight, 2)
+            price_per_gram = prices['gold_per_gram'].get(key, gold_24k * karat / 24)
+        return _apply_charges(price_per_gram * weight)
 
     if metal_type == 'silver':
-        return round(prices['silver_per_gram'] * weight, 2)
+        return _apply_charges(prices['silver_per_gram'] * weight)
 
     return None
