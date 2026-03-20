@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 from .models import Category, Product, ProductImage
 
 
@@ -70,19 +70,11 @@ class ProductAdmin(admin.ModelAdmin):
 
     def stock_status(self, obj):
         if obj.stock_quantity == 0:
-            return format_html(
-                '<span style="color:#DC2626;font-weight:600;">Out of Stock</span>'
-            )
+            return mark_safe('<span style="color:#DC2626;font-weight:600;">Out of Stock</span>')
         elif obj.stock_quantity <= 2:
-            return format_html(
-                '<span style="color:#D97706;font-weight:600;">Low: {}</span>',
-                obj.stock_quantity,
-            )
+            return format_html('<span style="color:#D97706;font-weight:600;">Low: {}</span>', obj.stock_quantity)
         else:
-            return format_html(
-                '<span style="color:#16A34A;font-weight:600;">{} in stock</span>',
-                obj.stock_quantity,
-            )
+            return format_html('<span style="color:#16A34A;font-weight:600;">{} in stock</span>', obj.stock_quantity)
     stock_status.short_description = 'Stock Status'
 
     def thumbnail(self, obj):
