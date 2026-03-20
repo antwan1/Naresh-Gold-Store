@@ -16,7 +16,7 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     queryset = Product.objects.filter(is_active=True).select_related('category').prefetch_related('images')
     permission_classes = [AllowAny]
     filterset_class = ProductFilter
-    search_fields = ['name', 'description', 'sku']
+    search_fields = ['name', 'description', 'sku', 'category__name']
     ordering_fields = ['price', 'created_at', 'name']
     ordering = ['-created_at']
     lookup_field = 'slug'

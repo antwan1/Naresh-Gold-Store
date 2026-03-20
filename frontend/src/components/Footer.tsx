@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaWhatsapp, FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock } from 'react-icons/fa';
+import { FaWhatsapp, FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock, FaInstagram, FaFacebook } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 
 const QUICK_LINKS = [
@@ -16,6 +16,8 @@ const QUICK_LINKS = [
 const SOCIAL_LINKS = [
   { icon: SiTiktok, href: 'https://www.tiktok.com/@nareshkumari06', label: 'TikTok' },
   { icon: FaWhatsapp, href: 'https://wa.me/447539935044', label: 'WhatsApp' },
+  { icon: FaInstagram, href: '#', label: 'Instagram' },
+  { icon: FaFacebook, href: '#', label: 'Facebook' },
 ];
 
 export default function Footer() {
@@ -199,13 +201,14 @@ export default function Footer() {
         className="border-t w-full"
         style={{ borderColor: 'rgba(201,168,76,0.15)' }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p
-            className="text-xs"
-            style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}
-          >
-            &copy; {new Date().getFullYear()} Naresh Jewellers. All rights reserved.
-          </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>
+            <span>&copy; {new Date().getFullYear()} Naresh Jewellers</span>
+            <span style={{ color: '#4B5563' }}>&middot;</span>
+            <Link to="/privacy-policy" className="no-underline hover:text-[#C9A84C] transition-colors duration-200" style={{ color: '#6B7280' }}>Privacy Policy</Link>
+            <span style={{ color: '#4B5563' }}>&middot;</span>
+            <Link to="/terms" className="no-underline hover:text-[#C9A84C] transition-colors duration-200" style={{ color: '#6B7280' }}>Terms &amp; Conditions</Link>
+          </div>
           <p
             className="text-xs"
             style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}

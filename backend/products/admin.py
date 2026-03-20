@@ -5,8 +5,16 @@ from .models import Category, Product, ProductImage
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
-    extra = 1
-    fields = ['image', 'alt_text', 'is_primary', 'sort_order']
+    extra = 3
+    max_num = 10
+    fields = ['image', 'preview', 'alt_text', 'is_primary', 'sort_order']
+    readonly_fields = ['preview']
+
+    def preview(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="height:60px;border-radius:4px;" />', obj.image.url)
+        return '—'
+    preview.short_description = 'Preview'
 
 
 @admin.register(Category)
@@ -25,7 +33,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = [
         'name', 'category', 'metal_type', 'purity', 'price_display',
-        'stock_quantity', 'is_featured', 'is_active', 'thumbnail',
+        'stock_quantity', 'stock_status', 'is_featured', 'is_active', 'thumbnail',
     ]
     list_filter = ['category', 'metal_type', 'is_featured', 'is_active', 'is_price_on_request']
     list_editable = ['is_featured', 'is_active']
@@ -59,6 +67,23 @@ class ProductAdmin(admin.ModelAdmin):
             return format_html('<em>{}</em>', 'Price on Request')
         return f'£{obj.price}' if obj.price else '—'
     price_display.short_description = 'Price'
+
+    def stock_status(self, obj):
+        if obj.stock_quantity == 0:
+            return format_html(
+                '<span style="color:#DC2626;font-weight:600;">Out of Stock</span>'
+            )
+        elif obj.stock_quantity <= 2:
+            return format_html(
+                '<span style="color:#D97706;font-weight:600;">Low: {}</span>',
+                obj.stock_quantity,
+            )
+        else:
+            return format_html(
+                '<span style="color:#16A34A;font-weight:600;">{} in stock</span>',
+                obj.stock_quantity,
+            )
+    stock_status.short_description = 'Stock Status'
 
     def thumbnail(self, obj):
         image = obj.images.filter(is_primary=True).first() or obj.images.first()

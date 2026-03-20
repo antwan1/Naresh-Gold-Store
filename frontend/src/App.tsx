@@ -23,6 +23,9 @@ import AppointmentPage from './pages/AppointmentPage';
 import SellGoldPage from './pages/SellGoldPage';
 import CustomJewelleryPage from './pages/CustomJewelleryPage';
 import GoldTicker from './components/GoldTicker';
+import CookieBanner from './components/CookieBanner';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsPage from './pages/TermsPage';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -95,12 +98,16 @@ export default function App() {
                 <Route path="/appointments" element={<AppointmentPage />} />
                 <Route path="/sell-gold" element={<SellGoldPage />} />
                 <Route path="/custom-jewellery" element={<CustomJewelleryPage />} />
+                {/* Legal pages */}
+                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                <Route path="/terms" element={<TermsPage />} />
                 {/* Catch-all */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>
             <Footer />
             <WhatsAppButton />
+            <CookieBanner />
           </div>
         </CartProvider>
       </AuthProvider>

@@ -157,6 +157,18 @@ export default function ContactPage() {
             <a href="/appointments" className="block w-full text-center px-6 py-3 rounded text-sm font-semibold transition-all duration-200 no-underline" style={{ backgroundColor: '#1A1F3A', color: '#C9A84C', fontFamily: 'var(--font-body)' }}>
               Book an Appointment
             </a>
+            <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2430.5!2d-1.9867!3d52.4958!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s4+High+St%2C+Smethwick+B66+1DX!5e0!3m2!1sen!2suk!4v1"
+                width="100%"
+                height="300"
+                style={{ border: 0, borderRadius: '8px', display: 'block' }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Naresh Jewellers location map"
+              />
+            </div>
           </aside>
         </div>
       </div>

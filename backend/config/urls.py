@@ -2,13 +2,35 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.views.static import serve
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.contrib.sitemaps.views import sitemap
+from products.sitemaps import ProductSitemap, CategorySitemap
+
+sitemaps = {
+    'products': ProductSitemap,
+    'categories': CategorySitemap,
+}
+
 
 def health(request):
     return JsonResponse({'status': 'ok'})
 
+
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        "Disallow: /api/",
+        "Allow: /",
+        "Sitemap: https://naresh-gold-store.onrender.com/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
 urlpatterns = [
     path('health/', health),
+    path('robots.txt', robots_txt),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('admin/', admin.site.urls),
     path('api/', include('products.urls')),
     path('api/', include('customers.urls')),
