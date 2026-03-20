@@ -71,6 +71,9 @@ export interface Order {
   status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
   total_amount: string;
   payment_method: string;
+  contact_phone: string;
+  recipient_name: string;
+  shipping_cost: string;
   shipping_address_line1: string;
   shipping_address_line2: string;
   shipping_city: string;

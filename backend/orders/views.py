@@ -3,6 +3,7 @@ import threading
 import stripe
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 from rest_framework import viewsets, mixins, status
@@ -225,28 +226,29 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         commission_rate = Decimal('0.0300')
         commission_amount = (Decimal(str(total)) * commission_rate).quantize(Decimal('0.01'))
 
-        order = Order.objects.create(
-            user=request.user,
-            total_amount=total,
-            commission_rate=commission_rate,
-            commission_amount=commission_amount,
-            **serializer.validated_data,
-        )
-
-        for item in cart_items:
-            unit_price = item_prices.get(item.id, Decimal('0'))
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                quantity=item.quantity,
-                unit_price=unit_price,
-                total_price=unit_price * item.quantity,
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user,
+                total_amount=total,
+                commission_rate=commission_rate,
+                commission_amount=commission_amount,
+                **serializer.validated_data,
             )
-            # Decrement stock
-            item.product.stock_quantity = max(0, item.product.stock_quantity - item.quantity)
-            item.product.save(update_fields=['stock_quantity'])
 
-        cart.items.all().delete()
+            for item in cart_items:
+                unit_price = item_prices.get(item.id, Decimal('0'))
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    unit_price=unit_price,
+                    total_price=unit_price * item.quantity,
+                )
+                # Decrement stock
+                item.product.stock_quantity = max(0, item.product.stock_quantity - item.quantity)
+                item.product.save(update_fields=['stock_quantity'])
+
+            cart.items.all().delete()
 
         # For cash orders, email immediately. For Stripe, email after payment is confirmed.
         if order.payment_method == 'cash':
