@@ -76,7 +76,7 @@ We will be in touch shortly to confirm the next steps.
 
 Warm regards,
 Naresh Jewellers
-4 Smethwick High Street, Birmingham, B66 1DX
+4 High St, Smethwick B66 1DX
 Tel: 0121 558 6966
 """,
         from_email=django_settings.DEFAULT_FROM_EMAIL,

@@ -35,7 +35,7 @@ class AppointmentCreateView(generics.CreateAPIView):
             f'  Time:    {appt.time_slot}\n'
             f'  Purpose: {purpose}\n\n'
             f'Our address:\n'
-            f'  4 Smethwick High Street, Birmingham, B66 1DX\n\n'
+            f'  4 High St, Smethwick B66 1DX\n\n'
             f'If you need to change or cancel your appointment, please call us on\n'
             f'0121 558 6966 or reply to this email.\n\n'
             f'We look forward to seeing you.\n\n'

@@ -143,7 +143,7 @@ export default function ContactPage() {
             <div className="rounded-xl p-6" style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
               <h3 className="text-base font-semibold mb-4" style={{ fontFamily: 'var(--font-heading)', color: '#1A1F3A' }}>Visit Our Store</h3>
               <div className="space-y-3 text-sm" style={{ fontFamily: 'var(--font-body)', color: '#6B7280' }}>
-                <p><strong>Address:</strong> 4 Smethwick High Street, Birmingham, B66 1DX</p>
+                <p><strong>Address:</strong> 4 High St, Smethwick B66 1DX</p>
                 <p><strong>Phone:</strong> <a href="tel:01215586966" style={{ color: '#C9A84C' }}>0121 558 6966</a></p>
                 <p><strong>Email:</strong> <a href="mailto:nareshkumari100@yahoo.com" style={{ color: '#C9A84C' }}>nareshkumari100@yahoo.com</a></p>
               </div>

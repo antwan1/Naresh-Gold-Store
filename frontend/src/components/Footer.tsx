@@ -106,8 +106,8 @@ export default function Footer() {
                   style={{ color: '#C9A84C' }}
                 />
                 <span className="text-sm leading-relaxed" style={{ color: '#E5E7EB', fontFamily: 'var(--font-body)' }}>
-                  4 Smethwick High Street<br />
-                  Birmingham, B66 1DX<br />
+                  4 High St, Smethwick<br />
+                  B66 1DX<br />
                   United Kingdom
                 </span>
               </li>

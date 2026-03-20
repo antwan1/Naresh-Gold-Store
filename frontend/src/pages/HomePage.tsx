@@ -473,7 +473,7 @@ export default function HomePage() {
                   className="text-sm leading-relaxed text-left"
                   style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'var(--font-body)' }}
                 >
-                  4 Smethwick High Street<br />Birmingham, B66 1DX
+                  4 High St, Smethwick<br />B66 1DX
                 </p>
               </div>
             </div>
@@ -496,7 +496,7 @@ export default function HomePage() {
                   className="text-sm leading-relaxed text-left"
                   style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'var(--font-body)' }}
                 >
-                  Mon–Sat: 11:00 – 18:00<br />Sunday: Closed
+                  Mon–Sun: 11:00 – 18:00
                 </p>
               </div>
             </div>
