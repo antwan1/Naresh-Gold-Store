@@ -75,6 +75,7 @@ export interface Order {
   shipping_address_line2: string;
   shipping_city: string;
   shipping_postcode: string;
+  shipping_country: string;
   notes: string;
   items: OrderItem[];
   created_at: string;
@@ -115,7 +116,7 @@ export interface WishlistItem {
 }
 
 export interface GoldPrices {
-  gold_per_gram: { '24k': number; '22k': number; '18k': number };
+  gold_per_gram: { '24k': number; '22k': number; '18k': number; '9k': number };
   silver_per_gram: number;
   currency: string;
   source: string;

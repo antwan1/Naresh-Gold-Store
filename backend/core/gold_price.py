@@ -70,28 +70,28 @@ VAT_RATE = 0.20  # 20% UK VAT
 
 
 def live_price_for_product(metal_type: str, purity: str, weight_grams, making_charge=0) -> float | None:
-    """Calculate live price: (weight × spot_price_per_gram + making_charge) × (1 + VAT)."""
+    """Calculate product price based on weight.
+
+    Gold pricing:
+      >= 3g : weight × £150          (rate is all-inclusive)
+      <  3g : (weight × £99 + £75) × 1.20 VAT
+
+    Silver: (weight × spot_price_per_gram) × 1.20 VAT (live rate)
+    """
     if not weight_grams:
         return None
 
-    prices = get_prices()
     weight = float(weight_grams)
-    making = float(making_charge or 0)
 
     if metal_type == 'gold':
-        match = re.search(r'(\d+)', str(purity))
-        if not match:
-            return None
-        karat = int(match.group(1))
-        gold_24k = prices['gold_per_gram']['24k']
-        if karat not in (9, 18, 22, 24):
-            price_per_gram = gold_24k * karat / 24
+        if weight >= 3:
+            return round(weight * 150, 2)
         else:
-            key = f'{karat}k'
-            price_per_gram = prices['gold_per_gram'].get(key, gold_24k * karat / 24)
-        return round((price_per_gram * weight + making) * (1 + VAT_RATE), 2)
+            return round((weight * 99 + 75) * (1 + VAT_RATE), 2)
 
     if metal_type == 'silver':
+        prices = get_prices()
+        making = float(making_charge or 0)
         return round((prices['silver_per_gram'] * weight + making) * (1 + VAT_RATE), 2)
 
     return None

@@ -1,7 +1,10 @@
+import logging
 import threading
 import stripe
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
+
+logger = logging.getLogger(__name__)
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -19,6 +22,13 @@ def _send_order_emails(order_id):
         order = Order.objects.prefetch_related('items__product').get(pk=order_id)
     except Order.DoesNotExist:
         return
+    try:
+        _do_send_order_emails(order)
+    except Exception as e:
+        logger.error('Failed to send order emails for order #%s: %s', order_id, e)
+
+
+def _do_send_order_emails(order):
 
     customer = order.user
     customer_name = f"{customer.first_name} {customer.last_name}".strip() or customer.email
@@ -71,7 +81,6 @@ Tel: 0121 558 6966
 """,
         from_email=django_settings.DEFAULT_FROM_EMAIL,
         recipient_list=[customer.email],
-        fail_silently=True,
     )
 
     # ── Shop notification ───────────────────────────────────────────────────
@@ -94,11 +103,10 @@ Total: £{order.total_amount}
 
 {"Notes: " + order.notes if order.notes else ""}
 
-View in admin: http://localhost:8000/admin/orders/order/{order.id}/change/
+View in admin: https://naresh-gold-store.onrender.com/admin/orders/order/{order.id}/change/
 """,
         from_email=django_settings.DEFAULT_FROM_EMAIL,
         recipient_list=[django_settings.SHOP_EMAIL],
-        fail_silently=True,
     )
 
 
@@ -192,15 +200,28 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Calculate total (skip price-on-request items)
+        # Calculate total using live price where available, otherwise static price
+        from decimal import Decimal
+        from core.gold_price import live_price_for_product
+
         shipping_cost = serializer.validated_data.get('shipping_cost', 0)
+        item_prices = {}
+        for item in cart_items:
+            live = live_price_for_product(
+                item.product.metal_type, item.product.purity,
+                item.product.weight_grams, item.product.making_charge,
+            )
+            if live is not None:
+                item_prices[item.id] = Decimal(str(live))
+            elif item.product.price is not None:
+                item_prices[item.id] = item.product.price
+            # price-on-request items get skipped (price=0 effectively)
+
         total = sum(
-            item.product.price * item.quantity
+            item_prices.get(item.id, Decimal('0')) * item.quantity
             for item in cart_items
-            if item.product.price is not None
         ) + shipping_cost
 
-        from decimal import Decimal
         commission_rate = Decimal('0.0300')
         commission_amount = (Decimal(str(total)) * commission_rate).quantize(Decimal('0.01'))
 
@@ -213,7 +234,7 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         )
 
         for item in cart_items:
-            unit_price = item.product.price or 0
+            unit_price = item_prices.get(item.id, Decimal('0'))
             OrderItem.objects.create(
                 order=order,
                 product=item.product,

@@ -1,8 +1,11 @@
+import logging
 from rest_framework import generics
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import CustomOrderEnquiry
 from .serializers import CustomOrderEnquirySerializer
+
+logger = logging.getLogger(__name__)
 
 
 class CustomOrderEnquiryCreateView(generics.CreateAPIView):
@@ -37,9 +40,9 @@ class CustomOrderEnquiryCreateView(generics.CreateAPIView):
             f'4 Smethwick High Street, Birmingham, B66 1DX'
         )
         try:
-            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [enquiry.email], fail_silently=True)
-        except Exception:
-            pass
+            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [enquiry.email])
+        except Exception as e:
+            logger.error('Failed to send custom order confirmation to %s: %s', enquiry.email, e)
 
     def _send_shop_notification(self, enquiry: CustomOrderEnquiry):
         subject = f'New bespoke order enquiry from {enquiry.name}'
@@ -57,9 +60,9 @@ class CustomOrderEnquiryCreateView(generics.CreateAPIView):
         body += (
             f'\nDescription:\n{enquiry.description}\n\n'
             f'Manage in admin:\n'
-            f'http://localhost:8000/admin/custom_orders/customorderenquiry/\n'
+            f'https://naresh-gold-store.onrender.com/admin/custom_orders/customorderenquiry/\n'
         )
         try:
-            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.SHOP_EMAIL], fail_silently=True)
-        except Exception:
-            pass
+            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.SHOP_EMAIL])
+        except Exception as e:
+            logger.error('Failed to send custom order shop notification: %s', e)

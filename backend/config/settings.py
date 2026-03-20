@@ -102,7 +102,14 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {'console': {'class': 'logging.StreamHandler'}},
     'root': {'handlers': ['console'], 'level': 'WARNING'},
-    'loggers': {'core': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False}},
+    'loggers': {
+        'core': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
+        'enquiries': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+        'appointments': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+        'orders': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+        'buyback': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+        'custom_orders': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+    },
 }
 
 # ── Security (production only) ─────────────────────────────────────────────

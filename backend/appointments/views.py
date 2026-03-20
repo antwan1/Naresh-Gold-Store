@@ -1,8 +1,11 @@
+import logging
 from rest_framework import generics
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Appointment
 from .serializers import AppointmentSerializer
+
+logger = logging.getLogger(__name__)
 
 PURPOSE_LABELS = {
     'consultation': 'Consultation',
@@ -40,9 +43,9 @@ class AppointmentCreateView(generics.CreateAPIView):
             f'Naresh Jewellers'
         )
         try:
-            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [appt.email], fail_silently=True)
-        except Exception:
-            pass
+            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [appt.email])
+        except Exception as e:
+            logger.error('Failed to send appointment confirmation to %s: %s', appt.email, e)
 
     def _send_shop_notification(self, appt: Appointment):
         purpose = PURPOSE_LABELS.get(appt.purpose, appt.purpose.title())
@@ -56,9 +59,9 @@ class AppointmentCreateView(generics.CreateAPIView):
             f'  Time:    {appt.time_slot}\n'
             f'  Purpose: {purpose}\n\n'
             f'Manage appointments in the admin:\n'
-            f'http://localhost:8000/admin/appointments/appointment/\n'
+            f'https://naresh-gold-store.onrender.com/admin/appointments/appointment/\n'
         )
         try:
-            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.SHOP_EMAIL], fail_silently=True)
-        except Exception:
-            pass
+            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.SHOP_EMAIL])
+        except Exception as e:
+            logger.error('Failed to send appointment shop notification: %s', e)

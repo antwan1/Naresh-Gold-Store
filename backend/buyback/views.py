@@ -1,8 +1,11 @@
+import logging
 from rest_framework import generics
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import GoldBuyback
 from .serializers import GoldBuybackSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class GoldBuybackCreateView(generics.CreateAPIView):
@@ -36,9 +39,9 @@ class GoldBuybackCreateView(generics.CreateAPIView):
             f'4 Smethwick High Street, Birmingham, B66 1DX'
         )
         try:
-            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [buyback.email], fail_silently=True)
-        except Exception:
-            pass
+            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [buyback.email])
+        except Exception as e:
+            logger.error('Failed to send buyback confirmation to %s: %s', buyback.email, e)
 
     def _send_shop_notification(self, buyback: GoldBuyback):
         subject = f'New gold buying request from {buyback.name}'
@@ -56,9 +59,9 @@ class GoldBuybackCreateView(generics.CreateAPIView):
             body += f'  Notes:      {buyback.description}\n'
         body += (
             f'\nManage requests in the admin:\n'
-            f'http://localhost:8000/admin/buyback/goldbuyback/\n'
+            f'https://naresh-gold-store.onrender.com/admin/buyback/goldbuyback/\n'
         )
         try:
-            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.SHOP_EMAIL], fail_silently=True)
-        except Exception:
-            pass
+            send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [settings.SHOP_EMAIL])
+        except Exception as e:
+            logger.error('Failed to send buyback shop notification: %s', e)

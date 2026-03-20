@@ -30,6 +30,14 @@ class CartItem(models.Model):
 
     @property
     def line_total(self):
+        from decimal import Decimal
+        from core.gold_price import live_price_for_product
+        live = live_price_for_product(
+            self.product.metal_type, self.product.purity,
+            self.product.weight_grams, self.product.making_charge,
+        )
+        if live is not None:
+            return Decimal(str(live)) * self.quantity
         if self.product.price:
             return self.product.price * self.quantity
         return None
