@@ -55,23 +55,45 @@ def _do_send_order_emails(order):
         phone_line = f"Contact phone: {order.contact_phone}" if order.contact_phone else ""
         delivery_info += "\nPayment: Card payment received via Stripe — your payment has been confirmed."
 
+    notes_line = f"Notes: {order.notes}\n" if order.notes else ""
+
     # ── Customer confirmation ───────────────────────────────────────────────
     send_mail(
         subject=f"Order Confirmed — Naresh Jewellers (Order #{order.id})",
         message=f"""Dear {customer_name},
 
-Thank you for placing an order with Naresh Jewellers!
+Thank you for placing an order with Naresh Jewellers! We are delighted to serve you.
 
-───────────────────────────
-Order #{order.id}
-───────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ORDER #{order.id} — INVOICE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {items_text}
 
-Total: £{order.total_amount}
+Subtotal:  £{order.total_amount}
+Shipping:  £{order.shipping_cost if order.shipping_cost else '0.00'}
+─────────────────────────────
+TOTAL:     £{order.total_amount}
 
 {delivery_info}
 
-{"Notes: " + order.notes if order.notes else ""}
+{notes_line}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NEED HELP WITH YOUR ORDER?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Cancel or request a refund
+  Reply to this email with the subject "CANCEL #{order.id}" or
+  call us on 0121 558 6966. Orders can be cancelled before dispatch.
+
+• Returns & refunds
+  We accept returns within 14 days of delivery. Items must be
+  unworn and in original condition. Reply to this email to start
+  a return.
+
+• General support
+  Email: info@nareshjewellers.co.uk
+  Phone: 0121 558 6966
+  Mon–Sun: 11:00–18:00
 
 We will be in touch shortly to confirm the next steps.
 
@@ -248,10 +270,10 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                 item.product.stock_quantity = max(0, item.product.stock_quantity - item.quantity)
                 item.product.save(update_fields=['stock_quantity'])
 
-            cart.items.all().delete()
-
-        # For cash orders, email immediately. For Stripe, email after payment is confirmed.
+            # For cash orders clear the cart now; for Stripe keep cart items until
+        # payment is confirmed so the user can press back and try again.
         if order.payment_method == 'cash':
+            cart.items.all().delete()
             threading.Thread(target=_send_order_emails, args=(order.id,), daemon=True).start()
 
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
@@ -311,6 +333,9 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                     and str(session.metadata.get('order_id')) == str(order.id)):
                 order.status = 'confirmed'
                 order.save()
+                # Clear the cart now that payment is confirmed
+                cart, _ = Cart.objects.get_or_create(user=request.user)
+                cart.items.all().delete()
                 threading.Thread(target=_send_order_emails, args=(order.id,), daemon=True).start()
                 return Response({'status': 'confirmed'})
             return Response({'error': 'Payment not confirmed'}, status=status.HTTP_400_BAD_REQUEST)

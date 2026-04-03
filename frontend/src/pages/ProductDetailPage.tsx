@@ -107,6 +107,8 @@ export default function ProductDetailPage() {
 
   async function handleAddToCart() {
     if (!isAuthenticated) {
+      // Save pending intent so the page auto-adds after login/register
+      sessionStorage.setItem('pendingCart', JSON.stringify({ productId: product!.id, quantity }));
       navigate('/login', { state: { from: '/products/' + slug } });
       return;
     }
@@ -120,6 +122,25 @@ export default function ProductDetailPage() {
       setCartError('Failed to add to cart. Please try again.');
     }
   }
+
+  // Auto-add to cart if user just logged in with a pending intent
+  useEffect(() => {
+    if (!isAuthenticated || !product) return;
+    const raw = sessionStorage.getItem('pendingCart');
+    if (!raw) return;
+    try {
+      const { productId, quantity: qty } = JSON.parse(raw) as { productId: number; quantity: number };
+      if (productId === product.id) {
+        sessionStorage.removeItem('pendingCart');
+        addToCart(productId, qty).then(() => {
+          setAddedToCart(true);
+          setTimeout(() => setAddedToCart(false), 2000);
+        }).catch(() => setCartError('Failed to add to cart. Please try again.'));
+      }
+    } catch {
+      sessionStorage.removeItem('pendingCart');
+    }
+  }, [isAuthenticated, product]);
 
   function handleSendEnquiry() {
     navigate(`/contact?product=${slug}`);

@@ -189,6 +189,7 @@ export default function LoginPage() {
           Don't have an account?{' '}
           <Link
             to="/register"
+            state={{ from }}
             className="font-semibold no-underline hover:underline"
             style={{ color: '#C9A84C' }}
           >

@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string })?.from ?? '/';
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -27,7 +29,7 @@ export default function RegisterPage() {
         password,
         ...(phone ? { phone } : {}),
       });
-      navigate('/', { replace: true });
+      navigate(from, { replace: true });
     } catch (err: unknown) {
       const data = (err as { response?: { data?: Record<string, string | string[]> } })?.response?.data;
       if (data) {
@@ -269,6 +271,7 @@ export default function RegisterPage() {
           Already have an account?{' '}
           <Link
             to="/login"
+            state={{ from }}
             className="font-semibold no-underline hover:underline"
             style={{ color: '#C9A84C' }}
           >
