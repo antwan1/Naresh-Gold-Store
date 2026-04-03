@@ -50,6 +50,11 @@ def notify_customer_on_status_change(sender, instance, **kwargs):
         _send_tracking_update_email(instance)
         return
 
+    # Cancellation — send a dedicated refund email
+    if status_changed and instance.status == 'cancelled':
+        _send_cancellation_email(instance)
+        return
+
     # Any other status change
     if status_changed:
         _send_status_email(instance)
@@ -91,6 +96,45 @@ def _send_tracking_update_email(order):
         f'Tracking number: {order.tracking_number}\n'
         f'Track your parcel here: {tracking_url}\n\n'
         f'If you have any questions, please call us on 0121 558 6966 or reply to this email.\n\n'
+        f'Warm regards,\nNaresh Jewellers\n4 High St, Smethwick B66 1DX\nTel: 0121 558 6966'
+    )
+    _send(subject, body, customer.email, order.id)
+
+
+def _send_cancellation_email(order):
+    customer = order.user
+    customer_name = f"{customer.first_name} {customer.last_name}".strip() or customer.email
+
+    if order.payment_method == 'stripe':
+        refund_section = (
+            'REFUND INFORMATION\n'
+            '──────────────────\n'
+            'A full refund of £{amount} has been issued to your original payment method.\n'
+            'Refunds typically appear on your card statement within 5–10 business days,\n'
+            'depending on your bank.\n\n'
+            'If you do not see the refund after 10 business days, please contact us and\n'
+            'we will investigate with Stripe on your behalf.'
+        ).format(amount=order.total_amount)
+    else:
+        refund_section = (
+            'As this was a Cash on Collection order, no payment was taken online.\n'
+            'If you made any in-store payment, please contact us and we will arrange\n'
+            'a refund directly.'
+        )
+
+    subject = f'Order #{order.id} Cancelled & Refund Confirmation | Naresh Jewellers'
+    body = (
+        f'Dear {customer_name},\n\n'
+        f'Your Order #{order.id} has been cancelled.\n\n'
+        f'━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+        f'{refund_section}\n\n'
+        f'━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+        f'QUESTIONS?\n'
+        f'━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+        f'Email: info@nareshjewellers.co.uk\n'
+        f'Phone: 0121 558 6966\n'
+        f'Mon–Sun: 11:00–18:00\n\n'
+        f'We are sorry to see you go and hope to serve you again soon.\n\n'
         f'Warm regards,\nNaresh Jewellers\n4 High St, Smethwick B66 1DX\nTel: 0121 558 6966'
     )
     _send(subject, body, customer.email, order.id)
