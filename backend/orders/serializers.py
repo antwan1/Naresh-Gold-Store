@@ -51,9 +51,9 @@ class OrderSerializer(serializers.ModelSerializer):
             'contact_phone', 'recipient_name', 'shipping_cost',
             'shipping_address_line1', 'shipping_address_line2',
             'shipping_city', 'shipping_postcode', 'shipping_country',
-            'notes', 'items', 'created_at',
+            'tracking_number', 'notes', 'items', 'created_at',
         ]
-        read_only_fields = ['id', 'status', 'total_amount', 'items', 'created_at']
+        read_only_fields = ['id', 'status', 'total_amount', 'tracking_number', 'items', 'created_at']
 
 
 class PlaceOrderSerializer(serializers.Serializer):

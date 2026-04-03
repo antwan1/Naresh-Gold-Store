@@ -16,8 +16,15 @@ const COUNTRIES = [
   'Ireland', 'Portugal', 'Poland', 'Czech Republic', 'Hungary',
 ];
 
-const SHIPPING_RATES: Record<string, number> = {
-  'United Kingdom': 0,
+// Royal Mail UK delivery options
+const UK_DELIVERY_OPTIONS = [
+  { value: 'tracked48', label: 'Royal Mail Tracked 48', description: '2–3 business days', price: 3.99 },
+  { value: 'tracked24', label: 'Royal Mail Tracked 24', description: '1–2 business days', price: 5.99 },
+  { value: 'special',   label: 'Royal Mail Special Delivery', description: 'Guaranteed next day by 1pm, fully insured', price: 9.95 },
+] as const;
+type UkDelivery = typeof UK_DELIVERY_OPTIONS[number]['value'];
+
+const INTERNATIONAL_RATES: Record<string, number> = {
   'Ireland': 15, 'Germany': 15, 'France': 15, 'Netherlands': 15, 'Belgium': 15,
   'Spain': 15, 'Italy': 15, 'Sweden': 15, 'Denmark': 15, 'Austria': 15,
   'Portugal': 15, 'Poland': 15, 'Czech Republic': 15, 'Hungary': 15,
@@ -29,8 +36,11 @@ const SHIPPING_RATES: Record<string, number> = {
   'South Africa': 35, 'Kenya': 35, 'Nigeria': 35,
 };
 
-function getShippingRate(country: string): number {
-  return SHIPPING_RATES[country] ?? 35;
+function getShippingRate(country: string, ukDelivery: UkDelivery): number {
+  if (country === 'United Kingdom') {
+    return UK_DELIVERY_OPTIONS.find((o) => o.value === ukDelivery)?.price ?? 3.99;
+  }
+  return INTERNATIONAL_RATES[country] ?? 35;
 }
 
 function OrderSummaryItem({ item }: { item: CartItem }) {
@@ -106,6 +116,7 @@ export default function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [isGift, setIsGift] = useState(false);
+  const [ukDelivery, setUkDelivery] = useState<UkDelivery>('tracked48');
 
   // User's own contact details (pre-filled from profile)
   const [phone, setPhone] = useState('');
@@ -146,7 +157,7 @@ export default function CheckoutPage() {
   const items = cart?.items ?? [];
   const total = cart?.total ?? '0.00';
   const isCash = paymentMethod === 'cash';
-  const shippingCost = isCash ? 0 : getShippingRate(country);
+  const shippingCost = isCash ? 0 : getShippingRate(country, ukDelivery);
   const cartTotal = parseFloat(total);
   const orderTotal = cartTotal + shippingCost;
 
@@ -348,14 +359,46 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
+                  {/* UK: Royal Mail delivery selector */}
+                  {country === 'United Kingdom' && (
+                    <div className="mt-1 mb-4">
+                      <p className="text-sm font-semibold mb-2" style={{ color: '#2C2C2C', fontFamily: 'var(--font-body)' }}>
+                        Delivery Method <span style={{ color: '#DC2626' }}>*</span>
+                      </p>
+                      <div className="space-y-2">
+                        {UK_DELIVERY_OPTIONS.map((opt) => {
+                          const sel = ukDelivery === opt.value;
+                          return (
+                            <label
+                              key={opt.value}
+                              className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-150"
+                              style={{ border: sel ? '2px solid #C9A84C' : '2px solid #E5E7EB', backgroundColor: sel ? '#FFFBF0' : '#FFFFFF' }}
+                            >
+                              <input
+                                type="radio" name="uk-delivery" value={opt.value}
+                                checked={sel} onChange={() => setUkDelivery(opt.value)}
+                                className="accent-[#C9A84C]"
+                              />
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold" style={{ color: '#1A1F3A', fontFamily: 'var(--font-body)' }}>{opt.label}</p>
+                                <p className="text-xs" style={{ color: '#6B7280', fontFamily: 'var(--font-body)' }}>{opt.description}</p>
+                              </div>
+                              <span className="text-sm font-semibold" style={{ color: '#C9A84C', fontFamily: 'var(--font-body)' }}>£{opt.price.toFixed(2)}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Shipping cost banner */}
                   <div
                     className="mt-1 px-4 py-3 rounded-lg text-sm flex items-center justify-between"
-                    style={{ backgroundColor: shippingCost === 0 ? '#F0FDF4' : '#FFFBF0', border: `1px solid ${shippingCost === 0 ? '#BBF7D0' : '#E8D5A3'}`, fontFamily: 'var(--font-body)' }}
+                    style={{ backgroundColor: '#FFFBF0', border: '1px solid #E8D5A3', fontFamily: 'var(--font-body)' }}
                   >
                     <span style={{ color: '#4B5563' }}>Shipping to {country}</span>
-                    <span className="font-semibold" style={{ color: shippingCost === 0 ? '#16A34A' : '#C9A84C' }}>
-                      {shippingCost === 0 ? 'Free' : `£${shippingCost}`}
+                    <span className="font-semibold" style={{ color: '#C9A84C' }}>
+                      £{shippingCost.toFixed(2)}
                     </span>
                   </div>
                 </div>

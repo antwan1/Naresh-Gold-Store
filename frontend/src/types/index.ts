@@ -79,6 +79,7 @@ export interface Order {
   shipping_city: string;
   shipping_postcode: string;
   shipping_country: string;
+  tracking_number: string;
   notes: string;
   items: OrderItem[];
   created_at: string;

@@ -27,10 +27,10 @@ export_orders_csv.short_description = 'Export selected orders as CSV'
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'status', 'total_amount', 'commission_amount', 'payment_method', 'created_at']
+    list_display = ['id', 'user', 'status', 'tracking_number', 'total_amount', 'payment_method', 'created_at']
     list_filter = ['status', 'payment_method']
-    list_editable = ['status']
-    search_fields = ['user__email', 'id']
+    list_editable = ['status', 'tracking_number']
+    search_fields = ['user__email', 'id', 'tracking_number']
     readonly_fields = ['created_at', 'updated_at', 'total_amount', 'commission_rate', 'commission_amount']
     inlines = [OrderItemInline]
     actions = [export_orders_csv]

@@ -84,10 +84,11 @@ def live_price_for_product(metal_type: str, purity: str, weight_grams, making_ch
     weight = float(weight_grams)
 
     if metal_type == 'gold':
+        making = float(making_charge or 0)
         if weight >= 3:
-            return round(weight * 150, 2)
+            return round(weight * 150 + making, 2)
         else:
-            return round((weight * 99 + 75) * (1 + VAT_RATE), 2)
+            return round((weight * 99 + 75 + making) * (1 + VAT_RATE), 2)
 
     if metal_type == 'silver':
         prices = get_prices()
