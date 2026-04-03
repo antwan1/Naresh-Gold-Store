@@ -336,6 +336,13 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
     @action(detail=True, methods=['post'], url_path='confirm-stripe')
     def confirm_stripe(self, request, pk=None):
         order = self.get_object()
+
+        # Idempotent: already confirmed (e.g. page refresh) — just clear cart & return
+        if order.status == 'confirmed':
+            cart, _ = Cart.objects.get_or_create(user=request.user)
+            cart.items.all().delete()
+            return Response({'status': 'confirmed'})
+
         session_id = request.data.get('session_id')
         if not session_id:
             return Response({'error': 'Missing session_id'}, status=status.HTTP_400_BAD_REQUEST)
@@ -345,13 +352,14 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             session = stripe.checkout.Session.retrieve(session_id)
             if (session.payment_status == 'paid'
                     and str(session.metadata.get('order_id')) == str(order.id)):
-                order.status = 'confirmed'
-                order.save()
-                # Clear the cart now that payment is confirmed
+                # Use queryset update to bypass pre_save signal — the invoice email
+                # below is the only email the customer should receive here.
+                Order.objects.filter(pk=order.pk).update(status='confirmed')
                 cart, _ = Cart.objects.get_or_create(user=request.user)
                 cart.items.all().delete()
                 threading.Thread(target=_send_order_emails, args=(order.id,), daemon=True).start()
                 return Response({'status': 'confirmed'})
             return Response({'error': 'Payment not confirmed'}, status=status.HTTP_400_BAD_REQUEST)
-        except stripe.StripeError as e:
+        except Exception as e:
+            logger.error('Stripe confirmation error for order #%s: %s', order.id, e)
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

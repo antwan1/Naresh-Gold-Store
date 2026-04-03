@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { getOrder, confirmStripePayment } from '../services/api';
+import { useCart } from '../context/CartContext';
 import type { Order } from '../types';
 
 const STATUS_LABELS: Record<Order['status'], string> = {
@@ -23,6 +24,7 @@ const STATUS_COLORS: Record<Order['status'], { bg: string; text: string }> = {
 export default function OrderConfirmationPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
+  const { refreshCart } = useCart();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -42,20 +44,27 @@ export default function OrderConfirmationPage() {
     const load = async () => {
       try {
         if (stripeSessionId) {
-          await confirmStripePayment(orderId, stripeSessionId);
+          try {
+            await confirmStripePayment(orderId, stripeSessionId);
+          } catch {
+            // Already confirmed (page refresh) or transient error — still load the order
+          }
           setStripeConfirmed(true);
+          // Sync frontend cart state with server (backend cleared it on confirmation)
+          await refreshCart();
         }
         const data = await getOrder(orderId);
         setOrder(data);
       } catch {
-        setError('Could not load your order details.');
+        setError('Could not load your order details. Please check My Account for order history.');
       } finally {
         setIsLoading(false);
       }
     };
 
     load();
-  }, [id, searchParams]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   if (isLoading) {
     return (
