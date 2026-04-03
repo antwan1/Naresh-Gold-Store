@@ -298,40 +298,55 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         if order.payment_method != 'stripe':
             return Response({'error': 'Not a Stripe order'}, status=status.HTTP_400_BAD_REQUEST)
 
-        stripe.api_key = django_settings.STRIPE_SECRET_KEY
-        frontend_url = django_settings.FRONTEND_URL
+        if not django_settings.STRIPE_SECRET_KEY:
+            logger.error('STRIPE_SECRET_KEY is not configured')
+            return Response({'error': 'Payment processing is not configured. Please contact us.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        line_items = []
-        for item in order.items.select_related('product').all():
-            line_items.append({
-                'price_data': {
-                    'currency': 'gbp',
-                    'product_data': {'name': item.product.name},
-                    'unit_amount': int(item.unit_price * 100),
-                },
-                'quantity': item.quantity,
-            })
+        try:
+            stripe.api_key = django_settings.STRIPE_SECRET_KEY
+            frontend_url = django_settings.FRONTEND_URL
 
-        if order.shipping_cost:
-            line_items.append({
-                'price_data': {
-                    'currency': 'gbp',
-                    'product_data': {'name': 'Shipping'},
-                    'unit_amount': int(order.shipping_cost * 100),
-                },
-                'quantity': 1,
-            })
+            line_items = []
+            for item in order.items.select_related('product').all():
+                unit_pence = round(float(item.unit_price) * 100)
+                if unit_pence > 0:
+                    line_items.append({
+                        'price_data': {
+                            'currency': 'gbp',
+                            'product_data': {'name': item.product.name},
+                            'unit_amount': unit_pence,
+                        },
+                        'quantity': item.quantity,
+                    })
 
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=line_items,
-            mode='payment',
-            customer_email=request.user.email,
-            success_url=f"{frontend_url}/order-confirmation/{order.id}?stripe_session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url=f"{frontend_url}/checkout",
-            metadata={'order_id': str(order.id)},
-        )
-        return Response({'url': session.url})
+            if order.shipping_cost:
+                shipping_pence = round(float(order.shipping_cost) * 100)
+                if shipping_pence > 0:
+                    line_items.append({
+                        'price_data': {
+                            'currency': 'gbp',
+                            'product_data': {'name': 'Shipping'},
+                            'unit_amount': shipping_pence,
+                        },
+                        'quantity': 1,
+                    })
+
+            if not line_items:
+                return Response({'error': 'Order has no chargeable items.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=line_items,
+                mode='payment',
+                customer_email=request.user.email,
+                success_url=f"{frontend_url}/order-confirmation/{order.id}?stripe_session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=f"{frontend_url}/checkout",
+                metadata={'order_id': str(order.id)},
+            )
+            return Response({'url': session.url})
+        except Exception as e:
+            logger.error('Stripe session creation failed for order #%s: %s', order.id, e)
+            return Response({'error': f'Payment session failed: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=['post'], url_path='confirm-stripe')
     def confirm_stripe(self, request, pk=None):

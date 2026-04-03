@@ -201,7 +201,7 @@ export default function CheckoutPage() {
         const first = Object.values(data)[0];
         setError(Array.isArray(first) ? first[0] : String(first));
       } else {
-        setError('Failed to place order. Please try again.');
+        setError('Failed to place order. Please try again or contact us on 0121 558 6966.');
       }
     } finally {
       setIsSubmitting(false);
