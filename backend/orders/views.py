@@ -278,6 +278,20 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
 
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=['post'], url_path='cancel')
+    def cancel(self, request, pk=None):
+        order = self.get_object()
+        if order.status == 'delivered':
+            return Response(
+                {'error': 'Delivered orders cannot be cancelled. Please contact us to arrange a return.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if order.status == 'cancelled':
+            return Response({'error': 'Order is already cancelled.'}, status=status.HTTP_400_BAD_REQUEST)
+        order.status = 'cancelled'
+        order.save()  # triggers signal → sends cancellation/refund email
+        return Response(OrderSerializer(order).data)
+
     @action(detail=True, methods=['post'], url_path='create-stripe-session')
     def create_stripe_session(self, request, pk=None):
         order = self.get_object()

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getOrders, getProfile, updateProfile, getWishlist, removeWishlistItem } from '../services/api';
+import { getOrders, getProfile, updateProfile, getWishlist, removeWishlistItem, cancelOrder } from '../services/api';
 import type { CustomerProfile, Order, WishlistItem } from '../types';
 
 const STATUS_LABELS: Record<Order['status'], string> = {
@@ -23,7 +23,31 @@ const STATUS_COLORS: Record<Order['status'], { bg: string; text: string }> = {
 
 type Tab = 'orders' | 'profile' | 'wishlist';
 
-function OrdersSection({ orders, isLoading }: { orders: Order[]; isLoading: boolean }) {
+const CANCELLABLE = new Set<Order['status']>(['pending', 'confirmed']);
+
+function OrdersSection({ orders: initialOrders, isLoading }: { orders: Order[]; isLoading: boolean }) {
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [cancelling, setCancelling] = useState<number | null>(null);
+  const [cancelError, setCancelError] = useState('');
+
+  useEffect(() => { setOrders(initialOrders); }, [initialOrders]);
+
+  async function handleCancel(orderId: number) {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    setCancelling(orderId);
+    setCancelError('');
+    try {
+      const updated = await cancelOrder(orderId);
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+        ?? 'Failed to cancel order. Please contact us.';
+      setCancelError(msg);
+    } finally {
+      setCancelling(null);
+    }
+  }
+
   if (isLoading) {
     return (
                   <>
@@ -64,6 +88,11 @@ function OrdersSection({ orders, isLoading }: { orders: Order[]; isLoading: bool
 
   return (
     <div data-testid="order-history">
+      {cancelError && (
+        <div className="mb-4 px-4 py-3 rounded text-sm" style={{ backgroundColor: '#FEE2E2', color: '#DC2626', border: '1px solid #FECACA', fontFamily: 'var(--font-body)' }}>
+          {cancelError}
+        </div>
+      )}
       <div className="overflow-x-auto">
         <table className="w-full text-sm" style={{ fontFamily: 'var(--font-body)' }}>
           <thead>
@@ -112,13 +141,31 @@ function OrdersSection({ orders, isLoading }: { orders: Order[]; isLoading: bool
                   £{parseFloat(order.total_amount).toFixed(2)}
                 </td>
                 <td className="py-4 px-2">
-                  <Link
-                    to={`/order-confirmation/${order.id}`}
-                    className="text-xs font-semibold no-underline hover:underline"
-                    style={{ color: '#C9A84C' }}
-                  >
-                    View
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      to={`/order-confirmation/${order.id}`}
+                      className="text-xs font-semibold no-underline hover:underline"
+                      style={{ color: '#C9A84C' }}
+                    >
+                      View
+                    </Link>
+                    {CANCELLABLE.has(order.status) && (
+                      <button
+                        onClick={() => handleCancel(order.id)}
+                        disabled={cancelling === order.id}
+                        className="text-xs font-semibold transition-colors"
+                        style={{
+                          color: cancelling === order.id ? '#9CA3AF' : '#DC2626',
+                          background: 'none',
+                          border: 'none',
+                          padding: 0,
+                          cursor: cancelling === order.id ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {cancelling === order.id ? 'Cancelling…' : 'Cancel'}
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

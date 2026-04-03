@@ -155,6 +155,11 @@ export async function getOrder(id: number): Promise<Order> {
   return response.data;
 }
 
+export async function cancelOrder(id: number): Promise<Order> {
+  const response = await authClient.post<Order>(`/orders/${id}/cancel/`);
+  return response.data;
+}
+
 // ── Enquiries ─────────────────────────────────────────────────────────────────
 
 export async function submitEnquiry(data: {
