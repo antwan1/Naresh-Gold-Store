@@ -58,6 +58,14 @@ export async function getCategories(): Promise<Category[]> {
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
+export async function requestPasswordReset(email: string): Promise<void> {
+  await client.post('/auth/password-reset/', { email });
+}
+
+export async function confirmPasswordReset(uid: string, token: string, new_password: string): Promise<void> {
+  await client.post('/auth/password-reset-confirm/', { uid, token, new_password });
+}
+
 export async function login(
   email: string,
   password: string

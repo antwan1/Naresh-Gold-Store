@@ -13,8 +13,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Redirect back to the page they came from, or home
   const from = (location.state as { from?: string })?.from ?? '/';
+  const successMessage = (location.state as { message?: string })?.message;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -70,6 +70,11 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
+          {successMessage && (
+            <div className="mb-5 px-4 py-3 rounded text-sm" style={{ backgroundColor: '#D1FAE5', color: '#065F46', border: '1px solid #6EE7B7', fontFamily: 'var(--font-body)' }}>
+              {successMessage}
+            </div>
+          )}
           {/* Error message */}
           {error && (
             <div
@@ -156,6 +161,13 @@ export default function LoginPage() {
               }}
               placeholder="••••••••"
             />
+          </div>
+
+          {/* Forgot password */}
+          <div className="text-right -mt-4 mb-4">
+            <Link to="/forgot-password" className="text-xs no-underline hover:underline" style={{ color: '#C9A84C', fontFamily: 'var(--font-body)' }}>
+              Forgot your password?
+            </Link>
           </div>
 
           {/* Submit */}

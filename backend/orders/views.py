@@ -1,5 +1,4 @@
 import logging
-import threading
 import stripe
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
@@ -17,16 +16,13 @@ from .serializers import (
 
 
 def _send_order_emails(order_id):
-    """Send confirmation emails to customer and shop — runs in background thread."""
+    """Send confirmation emails to customer and shop."""
     from .models import Order  # avoid circular import at module level
     try:
         order = Order.objects.prefetch_related('items__product').get(pk=order_id)
-    except Order.DoesNotExist:
-        return
-    try:
         _do_send_order_emails(order)
     except Exception as e:
-        logger.error('Failed to send order emails for order #%s: %s', order_id, e)
+        logger.error('Failed to send order emails for order #%s: %s', order_id, e, exc_info=True)
 
 
 def _do_send_order_emails(order):
@@ -285,7 +281,7 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         # payment is confirmed so the user can press back and try again.
         if order.payment_method == 'cash':
             cart.items.all().delete()
-            threading.Thread(target=_send_order_emails, args=(order.id,), daemon=True).start()
+            _send_order_emails(order.id)
 
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
@@ -383,7 +379,7 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                 Order.objects.filter(pk=order.pk).update(status='confirmed')
                 cart, _ = Cart.objects.get_or_create(user=request.user)
                 cart.items.all().delete()
-                threading.Thread(target=_send_order_emails, args=(order.id,), daemon=True).start()
+                _send_order_emails(order.id)
                 return Response({'status': 'confirmed'})
             return Response({'error': 'Payment not confirmed'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
