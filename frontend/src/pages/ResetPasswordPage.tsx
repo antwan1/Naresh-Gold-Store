@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { confirmPasswordReset } from '../services/api';
 
 export default function ResetPasswordPage() {
