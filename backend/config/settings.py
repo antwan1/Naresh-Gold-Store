@@ -107,7 +107,7 @@ LOGGING = {
         'core': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
         'enquiries': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
         'appointments': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
-        'orders': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
+        'orders': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
         'buyback': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
         'custom_orders': {'handlers': ['console'], 'level': 'ERROR', 'propagate': False},
     },

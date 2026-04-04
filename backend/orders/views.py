@@ -227,7 +227,9 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         from decimal import Decimal
         from core.gold_price import live_price_for_product
 
-        shipping_cost = serializer.validated_data.get('shipping_cost', 0)
+        validated = serializer.validated_data
+        shipping_cost = Decimal(str(validated.get('shipping_cost', 0)))
+
         item_prices = {}
         for item in cart_items:
             live = live_price_for_product(
@@ -237,16 +239,16 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
             if live is not None:
                 item_prices[item.id] = Decimal(str(live))
             elif item.product.price is not None:
-                item_prices[item.id] = item.product.price
-            # price-on-request items get skipped (price=0 effectively)
+                item_prices[item.id] = Decimal(str(item.product.price))
 
-        total = sum(
+        items_total = sum(
             item_prices.get(item.id, Decimal('0')) * item.quantity
             for item in cart_items
-        ) + shipping_cost
+        )
+        total = items_total + shipping_cost
 
         commission_rate = Decimal('0.0300')
-        commission_amount = (Decimal(str(total)) * commission_rate).quantize(Decimal('0.01'))
+        commission_amount = (total * commission_rate).quantize(Decimal('0.01'))
 
         with transaction.atomic():
             order = Order.objects.create(
@@ -254,7 +256,16 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
                 total_amount=total,
                 commission_rate=commission_rate,
                 commission_amount=commission_amount,
-                **serializer.validated_data,
+                payment_method=validated['payment_method'],
+                contact_phone=validated.get('contact_phone', ''),
+                recipient_name=validated.get('recipient_name', ''),
+                shipping_cost=shipping_cost,
+                shipping_address_line1=validated.get('shipping_address_line1', ''),
+                shipping_address_line2=validated.get('shipping_address_line2', ''),
+                shipping_city=validated.get('shipping_city', ''),
+                shipping_postcode=validated.get('shipping_postcode', ''),
+                shipping_country=validated.get('shipping_country', ''),
+                notes=validated.get('notes', ''),
             )
 
             for item in cart_items:
