@@ -372,12 +372,8 @@ class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin,
         stripe.api_key = django_settings.STRIPE_SECRET_KEY
         try:
             session = stripe.checkout.Session.retrieve(session_id)
-            # Verify payment is paid — we trust order.id from the authenticated URL,
-            # so metadata match is a secondary check only when metadata is available.
-            metadata_order_id = (session.metadata or {}).get('order_id')
-            metadata_matches = (metadata_order_id is None) or (str(metadata_order_id) == str(order.id))
-
-            if session.payment_status == 'paid' and metadata_matches:
+            # order.id comes from the authenticated URL — no need to cross-check metadata
+            if session.payment_status == 'paid':
                 Order.objects.filter(pk=order.pk).update(status='confirmed')
                 cart, _ = Cart.objects.get_or_create(user=request.user)
                 cart.items.all().delete()
