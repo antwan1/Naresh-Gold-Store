@@ -2,6 +2,27 @@ from django.contrib.sitemaps import Sitemap
 from .models import Product, Category
 
 
+class StaticViewSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.7
+
+    def items(self):
+        return [
+            '/',
+            '/shop',
+            '/about',
+            '/contact',
+            '/appointments',
+            '/sell-gold',
+            '/custom-jewellery',
+            '/privacy-policy',
+            '/terms',
+        ]
+
+    def location(self, obj):
+        return obj
+
+
 class ProductSitemap(Sitemap):
     changefreq = 'weekly'
     priority = 0.8
