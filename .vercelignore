@@ -1,0 +1,10 @@
+backend/
+e2e/
+playwright.config.ts
+playwright-report/
+test-results/
+requirements.txt
+railway.toml
+start.sh
+write_pages.py
+*.md
