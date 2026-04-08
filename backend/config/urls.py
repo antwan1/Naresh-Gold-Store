@@ -23,7 +23,7 @@ def robots_txt(request):
         "Disallow: /admin/",
         "Disallow: /api/",
         "Allow: /",
-        "Sitemap: https://naresh-gold-store.onrender.com/sitemap.xml",
+        "Sitemap: https://naresh-jewellers.com/sitemap.xml",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
